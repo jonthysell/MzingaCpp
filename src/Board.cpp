@@ -2,12 +2,16 @@
 // Licensed under the MIT License.
 
 #include <sstream>
+#include <assert.h>
 
 #include "Board.h"
 
 using namespace MzingaCpp;
 
 #define GameInProgress (m_boardState == BoardState::NotStarted || m_boardState == BoardState::InProgress)
+#define CurrentPlayerTurn (1 + m_currentTurn / 2)
+
+#define CurrentTurnQueenInPlay PieceInPlay(m_currentColor == Color::White ? PieceName::wQ : PieceName::bQ)
 
 Board::Board()
 {
@@ -23,7 +27,7 @@ std::string Board::GetGameString()
 
 	str << "Base";
 	str << ";" << GetEnumString(m_boardState);
-	str << ";" << GetEnumString(m_currentColor) << "[" << m_currentTurn + 1 << "]";
+	str << ";" << GetEnumString(m_currentColor) << "[" << CurrentPlayerTurn << "]";
 
 	for (auto const& iter : m_moveHistoryStr)
 	{
@@ -79,6 +83,7 @@ bool Board::TryPlayMove(Move const& move, std::string moveString)
 
 		m_currentTurn++;
 		m_currentColor = (Color)(m_currentTurn % (int)Color::NumColors);
+		m_boardState = m_currentTurn == 0 ? BoardState::NotStarted : BoardState::InProgress;
 
 		ResetCaches();
 
@@ -230,37 +235,47 @@ bool Board::TryParseMove(std::string moveString, Move& result, std::string& resu
 
 void Board::GetValidMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet)
 {
-	if (pieceName != PieceName::INVALID && GameInProgress)
+	if (pieceName != PieceName::INVALID && GameInProgress && m_currentColor == GetColor(pieceName) && PlacingPieceInOrder(pieceName))
 	{
+		int pieceIndex = (int)pieceName;
+
 		if (m_currentTurn == 0)
 		{
 			// First turn by white
-			switch (pieceName)
+			if (pieceName != PieceName::wQ)
 			{
-			case PieceName::wS1:
-			case PieceName::wB1:
-			case PieceName::wG1:
-			case PieceName::wA1:
-				moveSet->insert(Move{ pieceName, m_piecePositions[(int)pieceName], OriginPosition });
-				break;
+				moveSet->insert(Move{ pieceName, m_piecePositions[pieceIndex], OriginPosition });
 			}
 		}
 		else if (m_currentTurn == 1)
 		{
 			// First turn by black
-			switch (pieceName)
+			if (pieceName != PieceName::bQ)
 			{
-			case PieceName::bS1:
-			case PieceName::bB1:
-			case PieceName::bG1:
-			case PieceName::bA1:
 				auto validPlacements = GetValidPlacements();
 				for (auto const& iter : *validPlacements)
 				{
-					moveSet->insert(Move{ pieceName, m_piecePositions[(int)pieceName], iter });
+					moveSet->insert(Move{ pieceName, m_piecePositions[pieceIndex], iter });
 				}
-				break;
 			}
+		}
+		else if (PieceInHand(pieceName))
+		{
+			// Piece is in hand
+			if ((CurrentPlayerTurn != 4 ||
+				(CurrentPlayerTurn == 4 &&
+					(CurrentTurnQueenInPlay || (!CurrentTurnQueenInPlay && GetBugType(pieceName) == BugType::QueenBee)))))
+			{
+				auto validPlacements = GetValidPlacements();
+				for (auto const& iter : *validPlacements)
+				{
+					moveSet->insert(Move{ pieceName, m_piecePositions[pieceIndex], iter });
+				}
+			}
+		}
+		else if (CurrentTurnQueenInPlay)
+		{
+			// Piece is in play and movement is allowed
 		}
 	}
 }
@@ -282,8 +297,88 @@ std::shared_ptr<PositionSet> Board::GetValidPlacements()
 				m_cachedValidPlacements->insert(OriginPosition.GetNeighborAt((Direction)dir));
 			}
 		}
+		else
+		{
+			auto visitedPlacements = std::make_shared<PositionSet>();
+
+			for (int pn = 1; pn < (int)PieceName::NumPieceNames; pn++)
+			{
+				auto pieceName = (PieceName)pn;
+
+				if (PieceIsOnTop(pieceName) && m_currentColor == GetColor(pieceName))
+				{
+					auto bottomPosition = m_piecePositions[pn].GetBottom();
+					visitedPlacements->insert(bottomPosition);
+
+					for (int dir = 0; dir < (int)Direction::NumDirections; dir++)
+					{
+						auto neighbor = bottomPosition.GetNeighborAt((Direction)dir);
+
+						if (visitedPlacements->find(neighbor) == visitedPlacements->end() && !HasPieceAt(neighbor))
+						{
+							visitedPlacements->insert(neighbor);
+
+							// Neighboring position is a potential, verify its neighbors are empty or same color
+							
+							bool validPlacement = true;
+							for (int dir2 = 0; dir2 < (int)Direction::NumDirections; dir2++)
+							{
+								auto surroundingPosition = neighbor.GetNeighborAt((Direction)dir2);
+								auto surroundingPiece = GetPieceOnTopAt(surroundingPosition);
+								if (surroundingPiece != PieceName::INVALID && GetColor(surroundingPiece) != m_currentColor)
+								{
+									validPlacement = false;
+									break;
+								}
+							}
+
+							if (validPlacement)
+							{
+								m_cachedValidPlacements->insert(neighbor);
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	return m_cachedValidPlacements;
+}
+
+bool Board::PlacingPieceInOrder(PieceName const& pieceName)
+{
+	if (PieceInHand(pieceName))
+	{
+		switch (pieceName)
+		{
+		case PieceName::wS2:
+			return PieceInPlay(PieceName::wS1);
+		case PieceName::wB2:
+			return PieceInPlay(PieceName::wB1);
+		case PieceName::wG2:
+			return PieceInPlay(PieceName::wG1);
+		case PieceName::wG3:
+			return PieceInPlay(PieceName::wG2);
+		case PieceName::wA2:
+			return PieceInPlay(PieceName::wA1);
+		case PieceName::wA3:
+			return PieceInPlay(PieceName::wA2);
+		case PieceName::bS2:
+			return PieceInPlay(PieceName::bS1);
+		case PieceName::bB2:
+			return PieceInPlay(PieceName::bB1);
+		case PieceName::bG2:
+			return PieceInPlay(PieceName::bG1);
+		case PieceName::bG3:
+			return PieceInPlay(PieceName::bG2);
+		case PieceName::bA2:
+			return PieceInPlay(PieceName::bA1);
+		case PieceName::bA3:
+			return PieceInPlay(PieceName::bA2);
+		}
+	}
+
+	return true;
 }
 
 PieceName Board::GetPieceAt(Position const& position)
@@ -297,6 +392,53 @@ PieceName Board::GetPieceAt(Position const& position)
 	}
 
 	return PieceName::INVALID;
+}
+
+PieceName Board::GetPieceOnTopAt(Position const& position)
+{
+	auto currentPosition = position.GetBottom();
+	
+	auto topPiece = GetPieceAt(currentPosition);
+
+	if (topPiece != PieceName::INVALID)
+	{
+		while (true)
+		{
+			currentPosition = currentPosition.GetAbove();
+			auto nextPiece = GetPieceAt(currentPosition);
+			if (nextPiece == PieceName::INVALID)
+			{
+				break;
+			}
+			topPiece = nextPiece;
+		}
+	}
+
+	return topPiece;
+}
+
+bool Board::HasPieceAt(Position const& position)
+{
+	return GetPieceAt(position) != PieceName::INVALID;
+}
+
+inline bool Board::PieceInHand(PieceName const& pieceName)
+{
+	assert(pieceName != PieceName::INVALID && pieceName != PieceName::NumPieceNames);
+
+	return (m_piecePositions[(int)pieceName].Stack < 0);
+}
+
+inline bool Board::PieceInPlay(PieceName const& pieceName)
+{
+	assert(pieceName != PieceName::INVALID && pieceName != PieceName::NumPieceNames);
+
+	return (m_piecePositions[(int)pieceName].Stack >= 0);
+}
+
+bool Board::PieceIsOnTop(PieceName const& pieceName)
+{
+	return PieceInPlay(pieceName) && !HasPieceAt(m_piecePositions[(int)pieceName].GetAbove());
 }
 
 void Board::ResetCaches()

@@ -85,4 +85,71 @@ namespace MzingaCpp
 
 		return PieceName::INVALID;
 	}
+
+	Color GetColor(PieceName const& value)
+	{
+		switch (value)
+		{
+		case PieceName::wQ:
+		case PieceName::wS1:
+		case PieceName::wS2:
+		case PieceName::wB1:
+		case PieceName::wB2:
+		case PieceName::wG1:
+		case PieceName::wG2:
+		case PieceName::wG3:
+		case PieceName::wA1:
+		case PieceName::wA2:
+		case PieceName::wA3:
+			return Color::White;
+		case PieceName::bQ:
+		case PieceName::bS1:
+		case PieceName::bS2:
+		case PieceName::bB1:
+		case PieceName::bB2:
+		case PieceName::bG1:
+		case PieceName::bG2:
+		case PieceName::bG3:
+		case PieceName::bA1:
+		case PieceName::bA2:
+		case PieceName::bA3:
+			return Color::Black;
+		}
+	}
+
+	BugType GetBugType(PieceName const& value)
+	{
+		switch (value)
+		{
+		case PieceName::wQ:
+		case PieceName::bQ:
+			return BugType::QueenBee;
+		case PieceName::wS1:
+		case PieceName::wS2:
+		case PieceName::bS1:
+		case PieceName::bS2:
+			return BugType::Spider;
+		case PieceName::wB1:
+		case PieceName::wB2:
+		case PieceName::bB1:
+		case PieceName::bB2:
+			return BugType::Beetle;
+		case PieceName::wG1:
+		case PieceName::wG2:
+		case PieceName::wG3:
+		case PieceName::bG1:
+		case PieceName::bG2:
+		case PieceName::bG3:
+			return BugType::Grasshopper;
+		case PieceName::wA1:
+		case PieceName::wA2:
+		case PieceName::wA3:
+		case PieceName::bA1:
+		case PieceName::bA2:
+		case PieceName::bA3:
+			return BugType::SoldierAnt;
+		default:
+			return BugType::INVALID;
+		}
+	}
 }

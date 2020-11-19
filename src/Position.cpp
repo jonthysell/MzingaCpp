@@ -20,6 +20,11 @@ Position Position::GetBelow() const
 	return Position{ Q, R, Stack - 1 };
 }
 
+Position Position::GetBottom() const
+{
+	return Position{ Q, R, 0 };
+}
+
 namespace MzingaCpp
 {
 	bool operator==(Position const& lhs, Position const& rhs)

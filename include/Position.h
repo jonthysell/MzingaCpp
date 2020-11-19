@@ -18,6 +18,7 @@ namespace MzingaCpp
 		Position GetNeighborAt(Direction const& direction) const;
 		Position GetAbove() const;
 		Position GetBelow() const;
+		Position GetBottom() const;
 	};
 
 	static const Position OriginPosition{ 0, 0, 0 };

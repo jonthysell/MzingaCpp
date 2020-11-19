@@ -8,56 +8,58 @@
 
 namespace MzingaCpp
 {
-    enum class Color
-    {
-        White = 0,
-        Black,
-        NumColors,
-    };
+	enum class Color
+	{
+		White = 0,
+		Black,
+		NumColors,
+	};
 
-    std::string GetEnumString(Color const& value);
+	std::string GetEnumString(Color const& value);
 
-    enum class BoardState
-    {
-        NotStarted = 0,
-        InProgress,
-        Draw,
-        WhiteWins,
-        BlackWins,
-    };
+	enum class BoardState
+	{
+		NotStarted = 0,
+		InProgress,
+		Draw,
+		WhiteWins,
+		BlackWins,
+	};
 
-    std::string GetEnumString(BoardState const& value);
+	std::string GetEnumString(BoardState const& value);
 
-    enum class PieceName
-    {
-        INVALID = 0,
-        wQ,
-        wS1,
-        wS2,
-        wB1,
-        wB2,
-        wG1,
-        wG2,
-        wG3,
-        wA1,
-        wA2,
-        wA3,
-        bQ,
-        bS1,
-        bS2,
-        bB1,
-        bB2,
-        bG1,
-        bG2,
-        bG3,
-        bA1,
-        bA2,
-        bA3,
-        NumPieceNames
-    };
+	enum class PieceName
+	{
+		INVALID = 0,
+		wQ,
+		wS1,
+		wS2,
+		wB1,
+		wB2,
+		wG1,
+		wG2,
+		wG3,
+		wA1,
+		wA2,
+		wA3,
+		bQ,
+		bS1,
+		bS2,
+		bB1,
+		bB2,
+		bG1,
+		bG2,
+		bG3,
+		bA1,
+		bA2,
+		bA3,
+		NumPieceNames
+	};
 
-    std::string GetEnumString(PieceName const& value);
-    PieceName GetPieceNameValue(const char* str);
+	std::string GetEnumString(PieceName const& value);
+	PieceName GetPieceNameValue(const char* str);
+
+	Color GetColor(PieceName const& value);
 
 	enum class Direction
 	{
@@ -72,12 +74,16 @@ namespace MzingaCpp
 
 	enum class BugType
 	{
-		QueenBee = 0,
+		INVALID = 0,
+		QueenBee,
 		Spider,
 		Beetle,
 		Grasshopper,
 		SoldierAnt,
+		NumBugTypes,
 	};
+
+	BugType GetBugType(PieceName const& value);
 }
 
 #endif

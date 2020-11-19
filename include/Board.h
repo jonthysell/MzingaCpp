@@ -32,7 +32,16 @@ namespace MzingaCpp
 		void GetValidMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet);
 		std::shared_ptr<PositionSet> GetValidPlacements();
 
+		bool PlacingPieceInOrder(PieceName const& pieceName);
+
 		PieceName GetPieceAt(Position const& position);
+		PieceName GetPieceOnTopAt(Position const& position);
+		bool HasPieceAt(Position const& position);
+
+		bool PieceInHand(PieceName const& pieceName);
+		bool PieceInPlay(PieceName const& pieceName);
+
+		bool PieceIsOnTop(PieceName const& pieceName);
 
 		void ResetCaches();
 
