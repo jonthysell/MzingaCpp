@@ -30,8 +30,8 @@ namespace MzingaCpp
 
 	enum class PieceName
 	{
-		INVALID = 0,
-		wQ,
+		INVALID = -1,
+		wQ = 0,
 		wS1,
 		wS2,
 		wB1,
@@ -74,8 +74,8 @@ namespace MzingaCpp
 
 	enum class BugType
 	{
-		INVALID = 0,
-		QueenBee,
+		INVALID = -1,
+		QueenBee = 0,
 		Spider,
 		Beetle,
 		Grasshopper,

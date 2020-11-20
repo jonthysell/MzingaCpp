@@ -32,6 +32,12 @@ namespace MzingaCpp
 		void GetValidMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet);
 		std::shared_ptr<PositionSet> GetValidPlacements();
 
+		void GetValidQueenBeeMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet);
+		void GetValidSpiderMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet);
+		void GetValidBeetleMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet);
+		void GetValidGrasshopperMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet);
+		void GetValidSoldierAntMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet);
+
 		bool PlacingPieceInOrder(PieceName const& pieceName);
 
 		PieceName GetPieceAt(Position const& position);
@@ -42,6 +48,10 @@ namespace MzingaCpp
 		bool PieceInPlay(PieceName const& pieceName);
 
 		bool PieceIsOnTop(PieceName const& pieceName);
+
+		bool CanMoveWithoutBreakingHive(PieceName const& pieceName);
+
+		bool IsOneHive();
 
 		void ResetCaches();
 

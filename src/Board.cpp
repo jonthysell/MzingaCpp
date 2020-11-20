@@ -1,6 +1,7 @@
 // Copyright (c) 2020 Jon Thysell <http://jonthysell.com>
 // Licensed under the MIT License.
 
+#include <queue>
 #include <sstream>
 #include <assert.h>
 
@@ -15,9 +16,9 @@ using namespace MzingaCpp;
 
 Board::Board()
 {
-	for (int pn = 1; pn < (int)PieceName::NumPieceNames; pn++)
+	for (int pn = 0; pn < (int)PieceName::NumPieceNames; pn++)
 	{
-		m_piecePositions[pn] = Position{ 0, 0, -pn };
+		m_piecePositions[pn] = Position{ 0, 0, -1 };
 	}
 }
 
@@ -45,7 +46,7 @@ std::shared_ptr<MoveSet> Board::GetValidMoves()
 
 		if (GameInProgress)
 		{
-			for (int pn = 1; pn < (int)PieceName::NumPieceNames; pn++)
+			for (int pn = 0; pn < (int)PieceName::NumPieceNames; pn++)
 			{
 				GetValidMoves((PieceName)pn, m_cachedValidMoves);
 			}
@@ -273,9 +274,27 @@ void Board::GetValidMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> m
 				}
 			}
 		}
-		else if (CurrentTurnQueenInPlay)
+		else if (CurrentTurnQueenInPlay && CanMoveWithoutBreakingHive(pieceName))
 		{
 			// Piece is in play and movement is allowed
+			switch (GetBugType(pieceName))
+			{
+			case BugType::QueenBee:
+				GetValidQueenBeeMoves(pieceName, moveSet);
+				break;
+			case BugType::Spider:
+				GetValidSpiderMoves(pieceName, moveSet);
+				break;
+			case BugType::Beetle:
+				GetValidBeetleMoves(pieceName, moveSet);
+				break;
+			case BugType::Grasshopper:
+				GetValidGrasshopperMoves(pieceName, moveSet);
+				break;
+			case BugType::SoldierAnt:
+				GetValidSoldierAntMoves(pieceName, moveSet);
+				break;
+			}
 		}
 	}
 }
@@ -301,7 +320,7 @@ std::shared_ptr<PositionSet> Board::GetValidPlacements()
 		{
 			auto visitedPlacements = std::make_shared<PositionSet>();
 
-			for (int pn = 1; pn < (int)PieceName::NumPieceNames; pn++)
+			for (int pn = 0; pn < (int)PieceName::NumPieceNames; pn++)
 			{
 				auto pieceName = (PieceName)pn;
 
@@ -345,6 +364,50 @@ std::shared_ptr<PositionSet> Board::GetValidPlacements()
 	return m_cachedValidPlacements;
 }
 
+void Board::GetValidQueenBeeMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet)
+{
+
+}
+
+void Board::GetValidSpiderMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet)
+{
+
+}
+
+void Board::GetValidBeetleMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet)
+{
+
+}
+
+void Board::GetValidGrasshopperMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet)
+{
+	auto startingPosition = m_piecePositions[(int)pieceName];
+
+	for (int dir = 0; dir < (int)Direction::NumDirections; dir++)
+	{
+		auto landingPosition = startingPosition.GetNeighborAt((Direction)dir);
+
+		int distance = 0;
+		while (HasPieceAt(landingPosition))
+		{
+			// Jump one more in the same direction
+			landingPosition = landingPosition.GetNeighborAt((Direction)dir);
+			distance++;
+		}
+
+		if (distance > 0)
+		{
+			// Can only move if there's at least one piece in the way
+			moveSet->insert(Move{ pieceName, startingPosition, landingPosition });
+		}
+	}
+}
+
+void Board::GetValidSoldierAntMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet)
+{
+
+}
+
 bool Board::PlacingPieceInOrder(PieceName const& pieceName)
 {
 	if (PieceInHand(pieceName))
@@ -383,7 +446,7 @@ bool Board::PlacingPieceInOrder(PieceName const& pieceName)
 
 PieceName Board::GetPieceAt(Position const& position)
 {
-	for (int pn = 1; pn < (int)PieceName::NumPieceNames; pn++)
+	for (int pn = 0; pn < (int)PieceName::NumPieceNames; pn++)
 	{
 		if (m_piecePositions[pn] == position)
 		{
@@ -439,6 +502,90 @@ inline bool Board::PieceInPlay(PieceName const& pieceName)
 bool Board::PieceIsOnTop(PieceName const& pieceName)
 {
 	return PieceInPlay(pieceName) && !HasPieceAt(m_piecePositions[(int)pieceName].GetAbove());
+}
+
+bool Board::CanMoveWithoutBreakingHive(PieceName const& pieceName)
+{
+	int pieceIndex = (int)pieceName;
+	if (m_piecePositions[pieceIndex].Stack == 0)
+	{
+		// Temporarily remove piece from board
+		m_piecePositions[pieceIndex].Stack = -1;
+
+		// Determine if the hive is broken
+		bool isOneHive = IsOneHive();
+
+		// Return piece to the board
+		m_piecePositions[pieceIndex].Stack = 0;
+
+		return isOneHive;
+	}
+	return true;
+}
+
+bool Board::IsOneHive()
+{
+	bool partOfHive[(int)PieceName::NumPieceNames];
+	int piecesVisited = 0;
+
+	// Find a piece on the board to start checking
+	auto startingPiece = PieceName::INVALID;
+	for (int pn = 0; pn < (int)PieceName::NumPieceNames; pn++)
+	{
+		if (PieceInHand((PieceName)pn))
+		{
+			partOfHive[pn] = true;
+			piecesVisited++;
+		}
+		else
+		{
+			partOfHive[pn] = false;
+			if (startingPiece == PieceName::INVALID && m_piecePositions[pn].Stack == 0)
+			{
+				// Save off a starting piece on the bottom
+				startingPiece = (PieceName)pn;
+				partOfHive[pn] = true;
+				piecesVisited++;
+			}
+		}
+	}
+
+	// There is at least one piece on the board
+	if (startingPiece != PieceName::INVALID && piecesVisited < (int)PieceName::NumPieceNames)
+	{
+		std::queue<PieceName> piecesToLookAt;
+		piecesToLookAt.push(startingPiece);
+
+		while (piecesToLookAt.size() > 0)
+		{
+			auto currentPiece = piecesToLookAt.front();
+			piecesToLookAt.pop();
+
+			// Check all pieces at this stack level
+			for (int dir = 0; dir < (int)Direction::NumDirections; dir++)
+			{
+				auto neighbor = m_piecePositions[(int)currentPiece].GetNeighborAt((Direction)dir);
+				auto neighborPiece = GetPieceAt(neighbor);
+				if (neighborPiece != PieceName::INVALID && !partOfHive[(int)neighborPiece])
+				{
+					piecesToLookAt.push(neighborPiece);
+					partOfHive[(int)neighborPiece] = true;
+					piecesVisited++;
+				}
+			}
+
+			// Check for all pieces above this one
+			auto pieceAbove = GetPieceAt(m_piecePositions[(int)currentPiece].GetAbove());
+			while (PieceName::INVALID != pieceAbove)
+			{
+				partOfHive[(int)pieceAbove] = true;
+				piecesVisited++;
+				pieceAbove = GetPieceAt(m_piecePositions[(int)pieceAbove].GetAbove());
+			}
+		}
+	}
+
+	return piecesVisited == (int)PieceName::NumPieceNames;
 }
 
 void Board::ResetCaches()
