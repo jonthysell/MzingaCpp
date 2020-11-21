@@ -46,6 +46,10 @@ void Engine::ReadLine(std::string line)
 	{
 		Pass();
 	}
+	else if (line.rfind(CommandString_Undo, 0) == 0)
+	{
+		Undo(args);
+	}
 	else if (line == CommandString_Options)
 	{
 		Options();
@@ -171,6 +175,36 @@ void Engine::Play(std::string args)
 void Engine::Pass()
 {
 	Play(PassMoveString);
+}
+
+void Engine::Undo(std::string args)
+{
+	if (!m_board)
+	{
+		WriteError(ErrorMessage_NoGameInProgress);
+		return;
+	}
+
+	std::istringstream ss(args);
+	int movesToUndo;
+	if ((ss >> movesToUndo).fail())
+	{
+		movesToUndo = 1;
+	}
+
+	if (movesToUndo < 1 || movesToUndo > m_board->GetCurrentTurn())
+	{
+		WriteError(ErrorMessage_UnableToUndo);
+		return;
+	}
+
+	for (int i = 0; i < movesToUndo; i++)
+	{
+		m_board->TryUndoLastMove();
+	}
+
+	WriteLine(m_board->GetGameString());
+	WriteLine(OkString);
 }
 
 void Engine::Options()

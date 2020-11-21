@@ -18,12 +18,14 @@ namespace MzingaCpp
 	constexpr const char* CommandString_BestMove = "bestmove";
 	constexpr const char* CommandString_Play = "play";
 	constexpr const char* CommandString_Pass = "pass";
+	constexpr const char* CommandString_Undo = "undo";
 	constexpr const char* CommandString_Options = "options";
 	constexpr const char* CommandString_Exit = "exit";
 
 	constexpr const char* ErrString = "err";
 	constexpr const char* ErrorMessage_InvalidCommand = "Invalid command. Try 'help' to see a list of valid commands.";
 	constexpr const char* ErrorMessage_NoGameInProgress = "No game in progress. Try 'newgame' to start a new game.";
+	constexpr const char* ErrorMessage_UnableToUndo = "Unable to undo that many moves.";
 	constexpr const char* ErrorMessage_Unknown = "An unknown error has occured";
 
 	constexpr const char* InvalidMoveString = "invalidmove";

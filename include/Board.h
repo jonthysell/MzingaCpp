@@ -23,7 +23,10 @@ namespace MzingaCpp
 		std::string GetGameString();
 		std::shared_ptr<MoveSet> GetValidMoves();
 
+		int GetCurrentTurn();
+
 		bool TryPlayMove(Move const& move, std::string moveString);
+		bool TryUndoLastMove();
 
 		bool TryGetMoveString(Move const& move, std::string& result);
 		bool TryParseMove(std::string moveString, Move& result, std::string& resultString);
@@ -53,6 +56,9 @@ namespace MzingaCpp
 
 		bool IsOneHive();
 
+		int CountNeighbors(PieceName const& pieceName);
+
+		void ResetState();
 		void ResetCaches();
 
 		BoardState m_boardState = BoardState::NotStarted;

@@ -61,6 +61,11 @@ std::shared_ptr<MoveSet> Board::GetValidMoves()
 	return m_cachedValidMoves;
 }
 
+int Board::GetCurrentTurn()
+{
+	return m_currentTurn;
+}
+
 bool Board::TryPlayMove(Move const& move, std::string moveString)
 {
 	auto validMoves = GetValidMoves();
@@ -83,9 +88,33 @@ bool Board::TryPlayMove(Move const& move, std::string moveString)
 		}
 
 		m_currentTurn++;
-		m_currentColor = (Color)(m_currentTurn % (int)Color::NumColors);
-		m_boardState = m_currentTurn == 0 ? BoardState::NotStarted : BoardState::InProgress;
+		
+		ResetState();
+		ResetCaches();
 
+		return true;
+	}
+
+	return false;
+}
+
+bool Board::TryUndoLastMove()
+{
+	if (m_moveHistory.size() > 0)
+	{
+		auto lastMove = m_moveHistory.back();
+
+		if (lastMove != PassMove)
+		{
+			m_piecePositions[(int)lastMove.PieceName] = lastMove.Source;
+		}
+
+		m_moveHistory.pop_back();
+		m_moveHistoryStr.pop_back();
+
+		m_currentTurn--;
+
+		ResetState();
 		ResetCaches();
 
 		return true;
@@ -586,6 +615,48 @@ bool Board::IsOneHive()
 	}
 
 	return piecesVisited == (int)PieceName::NumPieceNames;
+}
+
+int Board::CountNeighbors(PieceName const& pieceName)
+{
+	int count = 0;
+	if (PieceInPlay(pieceName))
+	{
+		for (int dir = 0; dir < (int)Direction::NumDirections; dir++)
+		{
+			auto neighbor = GetPieceAt(m_piecePositions[(int)pieceName].GetNeighborAt((Direction)dir));
+			if (neighbor != PieceName::INVALID)
+			{
+				count++;
+			}
+		}
+	}
+	return count;
+}
+
+void Board::ResetState()
+{
+	m_currentColor = (Color)(m_currentTurn % (int)Color::NumColors);
+
+	bool whiteQueenSurrounded = (CountNeighbors(PieceName::wQ) == 6);
+	bool blackQueenSurrounded = (CountNeighbors(PieceName::bQ) == 6);
+
+	if (whiteQueenSurrounded && blackQueenSurrounded)
+	{
+		m_boardState = BoardState::Draw;
+	}
+	else if (whiteQueenSurrounded)
+	{
+		m_boardState = BoardState::BlackWins;
+	}
+	else if (blackQueenSurrounded)
+	{
+		m_boardState = BoardState::WhiteWins;
+	}
+	else
+	{
+		m_boardState = m_currentTurn == 0 ? BoardState::NotStarted : BoardState::InProgress;
+	}
 }
 
 void Board::ResetCaches()

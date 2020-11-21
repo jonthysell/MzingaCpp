@@ -38,6 +38,7 @@ namespace MzingaCpp
 		void BestMove();
 		void Play(std::string args);
 		void Pass();
+		void Undo(std::string args);
 		void Options();
 		void Exit();
 
