@@ -28,6 +28,16 @@ namespace MzingaCpp
 		}
 	}
 
+	bool GameInProgress(BoardState const& value)
+	{
+		return (value == BoardState::NotStarted || value == BoardState::InProgress);
+	}
+
+	bool GameIsOver(BoardState const& value)
+	{
+		return !GameInProgress(value);
+	}
+
 	std::string GetEnumString(PieceName const& value)
 	{
 		switch (value)

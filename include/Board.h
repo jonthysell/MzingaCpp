@@ -20,10 +20,11 @@ namespace MzingaCpp
 	public:
 		Board();
 
+		BoardState GetBoardState();
+		int GetCurrentTurn();
+
 		std::string GetGameString();
 		std::shared_ptr<MoveSet> GetValidMoves();
-
-		int GetCurrentTurn();
 
 		bool TryPlayMove(Move const& move, std::string moveString);
 		bool TryUndoLastMove();

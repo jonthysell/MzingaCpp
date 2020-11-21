@@ -28,6 +28,9 @@ namespace MzingaCpp
 
 	std::string GetEnumString(BoardState const& value);
 
+	bool GameInProgress(BoardState const& value);
+	bool GameIsOver(BoardState const& value);
+
 	enum class PieceName
 	{
 		INVALID = -1,

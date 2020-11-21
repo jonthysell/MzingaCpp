@@ -25,6 +25,7 @@ namespace MzingaCpp
 	constexpr const char* ErrString = "err";
 	constexpr const char* ErrorMessage_InvalidCommand = "Invalid command. Try 'help' to see a list of valid commands.";
 	constexpr const char* ErrorMessage_NoGameInProgress = "No game in progress. Try 'newgame' to start a new game.";
+	constexpr const char* ErrorMessage_GameIsOver = "The game is over. Try 'newgame' to start a new game.";
 	constexpr const char* ErrorMessage_UnableToUndo = "Unable to undo that many moves.";
 	constexpr const char* ErrorMessage_Unknown = "An unknown error has occured";
 

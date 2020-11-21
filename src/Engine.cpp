@@ -102,6 +102,12 @@ void Engine::ValidMoves()
 		return;
 	}
 
+	if (GameIsOver(m_board->GetBoardState()))
+	{
+		WriteError(ErrorMessage_GameIsOver);
+		return;
+	}
+
 	auto validMoves = m_board->GetValidMoves();
 
 	std::ostringstream str;
@@ -132,6 +138,12 @@ void Engine::BestMove()
 		return;
 	}
 
+	if (GameIsOver(m_board->GetBoardState()))
+	{
+		WriteError(ErrorMessage_GameIsOver);
+		return;
+	}
+
 	auto validMoves = m_board->GetValidMoves();
 
 	Move bestMove = *(validMoves->begin());
@@ -153,6 +165,12 @@ void Engine::Play(std::string args)
 	if (!m_board)
 	{
 		WriteError(ErrorMessage_NoGameInProgress);
+		return;
+	}
+
+	if (GameIsOver(m_board->GetBoardState()))
+	{
+		WriteError(ErrorMessage_GameIsOver);
 		return;
 	}
 

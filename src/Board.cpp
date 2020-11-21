@@ -9,7 +9,6 @@
 
 using namespace MzingaCpp;
 
-#define GameInProgress (m_boardState == BoardState::NotStarted || m_boardState == BoardState::InProgress)
 #define CurrentPlayerTurn (1 + m_currentTurn / 2)
 
 #define CurrentTurnQueenInPlay PieceInPlay(m_currentColor == Color::White ? PieceName::wQ : PieceName::bQ)
@@ -20,6 +19,16 @@ Board::Board()
 	{
 		m_piecePositions[pn] = Position{ 0, 0, -1 };
 	}
+}
+
+BoardState Board::GetBoardState()
+{
+	return m_boardState;
+}
+
+int Board::GetCurrentTurn()
+{
+	return m_currentTurn;
 }
 
 std::string Board::GetGameString()
@@ -44,7 +53,7 @@ std::shared_ptr<MoveSet> Board::GetValidMoves()
 	{
 		m_cachedValidMoves = std::make_shared<MoveSet>();
 
-		if (GameInProgress)
+		if (GameInProgress(m_boardState))
 		{
 			for (int pn = 0; pn < (int)PieceName::NumPieceNames; pn++)
 			{
@@ -59,11 +68,6 @@ std::shared_ptr<MoveSet> Board::GetValidMoves()
 	}
 
 	return m_cachedValidMoves;
-}
-
-int Board::GetCurrentTurn()
-{
-	return m_currentTurn;
 }
 
 bool Board::TryPlayMove(Move const& move, std::string moveString)
@@ -265,7 +269,7 @@ bool Board::TryParseMove(std::string moveString, Move& result, std::string& resu
 
 void Board::GetValidMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet)
 {
-	if (pieceName != PieceName::INVALID && GameInProgress && m_currentColor == GetColor(pieceName) && PlacingPieceInOrder(pieceName))
+	if (pieceName != PieceName::INVALID && GameInProgress(m_boardState) && m_currentColor == GetColor(pieceName) && PlacingPieceInOrder(pieceName))
 	{
 		int pieceIndex = (int)pieceName;
 
