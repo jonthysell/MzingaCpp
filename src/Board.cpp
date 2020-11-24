@@ -77,8 +77,6 @@ bool Board::TryPlayMove(Move const& move, std::string moveString)
 	auto it = validMoves->find(move);
 	if (it != validMoves->end())
 	{
-		m_moveHistory.push_back(move);
-
 		if (moveString.empty())
 		{
 			TryGetMoveString(move, moveString);
@@ -86,15 +84,7 @@ bool Board::TryPlayMove(Move const& move, std::string moveString)
 
 		m_moveHistoryStr.push_back(moveString);
 
-		if (move != PassMove)
-		{
-			m_piecePositions[(int)move.PieceName] = move.Destination;
-		}
-
-		m_currentTurn++;
-
-		ResetState();
-		ResetCaches();
+		TrustedPlay(move);
 
 		return true;
 	}
@@ -265,6 +255,35 @@ bool Board::TryParseMove(std::string moveString, Move& result, std::string& resu
 
 	result = Move{};
 	return false;
+}
+
+long Board::CalculatePerft(int depth)
+{
+	if (depth == 0)
+	{
+		return 1;
+	}
+
+	auto moves = GetValidMoves();
+
+	if (depth == 1)
+	{
+		return moves->size();
+	}
+
+	long nodes = 0;
+
+	for (auto const& move : *moves)
+	{
+		TrustedPlay(move);
+		m_moveHistoryStr.push_back("");
+		auto value = CalculatePerft(depth - 1);
+		TryUndoLastMove();
+
+		nodes += value;
+	}
+
+	return nodes;
 }
 
 void Board::GetValidMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet)
@@ -526,6 +545,21 @@ void Board::GetValidSlides(PieceName const& pieceName, std::shared_ptr<MoveSet> 
 			}
 		}
 	}
+}
+
+void Board::TrustedPlay(Move const& move)
+{
+	m_moveHistory.push_back(move);
+
+	if (move != PassMove)
+	{
+		m_piecePositions[(int)move.PieceName] = move.Destination;
+	}
+
+	m_currentTurn++;
+
+	ResetState();
+	ResetCaches();
 }
 
 bool Board::PlacingPieceInOrder(PieceName const& pieceName)

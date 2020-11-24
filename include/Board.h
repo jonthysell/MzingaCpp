@@ -32,6 +32,8 @@ namespace MzingaCpp
 		bool TryGetMoveString(Move const& move, std::string& result);
 		bool TryParseMove(std::string moveString, Move& result, std::string& resultString);
 
+		long CalculatePerft(int depth);
+
 	private:
 		void GetValidMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet);
 		std::shared_ptr<PositionSet> GetValidPlacements();
@@ -44,6 +46,8 @@ namespace MzingaCpp
 
 		void GetValidSlides(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet, int maxRange);
 		void GetValidSlides(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet, Position const& startingPosition, Position const& currentPosition, std::shared_ptr<PositionSet> visitedPositions, int currentRange, int maxRange);
+
+		void TrustedPlay(Move const& move);
 
 		bool PlacingPieceInOrder(PieceName const& pieceName);
 

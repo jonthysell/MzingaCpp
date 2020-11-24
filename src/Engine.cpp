@@ -1,6 +1,7 @@
 // Copyright (c) 2020 Jon Thysell <http://jonthysell.com>
 // Licensed under the MIT License.
 
+#include <chrono>
 #include <sstream>
 
 #include "Constants.h"
@@ -53,6 +54,10 @@ void Engine::ReadLine(std::string line)
 	else if (line == CommandString_Options)
 	{
 		Options();
+	}
+	else if (line.rfind(CommandString_Perft, 0) == 0)
+	{
+		Perft(args);
 	}
 	else if (line == CommandString_Exit)
 	{
@@ -258,6 +263,43 @@ void Engine::Undo(std::string args)
 
 void Engine::Options()
 {
+	WriteLine(OkString);
+}
+
+void Engine::Perft(std::string args)
+{
+	if (!m_board)
+	{
+		WriteError(ErrorMessage_NoGameInProgress);
+		return;
+	}
+
+	std::istringstream ss(args);
+	int maxDepth;
+	if ((ss >> maxDepth).fail())
+	{
+		maxDepth = 0;
+	}
+
+	if (maxDepth < 0)
+	{
+		WriteError(ErrorMessage_Unknown);
+		return;
+	}
+
+	for (int depth = 0; depth <= maxDepth; depth++)
+	{
+		auto startTime = std::chrono::high_resolution_clock::now();
+		auto nodes = m_board->CalculatePerft(depth);
+		auto endTime = std::chrono::high_resolution_clock::now();
+
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+
+		std::ostringstream out;
+		out << "perft(" << depth << ") = " << nodes << " in " << duration.count() << " ms. " << round(nodes / (double)duration.count()) << " KN/s";
+		WriteLine(out.str());
+	}
+
 	WriteLine(OkString);
 }
 

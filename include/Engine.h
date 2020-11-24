@@ -40,6 +40,8 @@ namespace MzingaCpp
 		void Pass();
 		void Undo(std::string args);
 		void Options();
+
+		void Perft(std::string args);
 		void Exit();
 
 		std::function<void(std::string)> m_writeLine;

@@ -20,6 +20,8 @@ namespace MzingaCpp
 	constexpr const char* CommandString_Pass = "pass";
 	constexpr const char* CommandString_Undo = "undo";
 	constexpr const char* CommandString_Options = "options";
+
+	constexpr const char* CommandString_Perft = "perft";
 	constexpr const char* CommandString_Exit = "exit";
 
 	constexpr const char* ErrString = "err";
