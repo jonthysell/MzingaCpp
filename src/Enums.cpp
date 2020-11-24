@@ -127,6 +127,16 @@ namespace MzingaCpp
 		}
 	}
 
+	Direction LeftOf(Direction value)
+	{
+		return (Direction)(((int)value + (int)Direction::NumDirections - 1) % (int)Direction::NumDirections);
+	}
+
+	Direction RightOf(Direction value)
+	{
+		return (Direction)(((int)value + 1) % (int)Direction::NumDirections);
+	}
+
 	BugType GetBugType(PieceName const& value)
 	{
 		switch (value)

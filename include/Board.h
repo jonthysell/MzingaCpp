@@ -42,6 +42,9 @@ namespace MzingaCpp
 		void GetValidGrasshopperMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet);
 		void GetValidSoldierAntMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet);
 
+		void GetValidSlides(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet, int maxRange);
+		void GetValidSlides(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet, Position const& startingPosition, Position const& currentPosition, std::shared_ptr<PositionSet> visitedPositions, int currentRange, int maxRange);
+
 		bool PlacingPieceInOrder(PieceName const& pieceName);
 
 		PieceName GetPieceAt(Position const& position);

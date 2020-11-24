@@ -92,7 +92,7 @@ bool Board::TryPlayMove(Move const& move, std::string moveString)
 		}
 
 		m_currentTurn++;
-		
+
 		ResetState();
 		ResetCaches();
 
@@ -371,7 +371,7 @@ std::shared_ptr<PositionSet> Board::GetValidPlacements()
 							visitedPlacements->insert(neighbor);
 
 							// Neighboring position is a potential, verify its neighbors are empty or same color
-							
+
 							bool validPlacement = true;
 							for (int dir2 = 0; dir2 < (int)Direction::NumDirections; dir2++)
 							{
@@ -399,17 +399,26 @@ std::shared_ptr<PositionSet> Board::GetValidPlacements()
 
 void Board::GetValidQueenBeeMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet)
 {
-
+	GetValidSlides(pieceName, moveSet, 1);
 }
 
 void Board::GetValidSpiderMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet)
 {
+	GetValidSlides(pieceName, moveSet, 3);
 
+	auto upToTwo = std::make_shared<MoveSet>();
+	GetValidSlides(pieceName, upToTwo, 2);
+
+	for (auto const& move : *upToTwo)
+	{
+		moveSet->erase(move);
+	}
 }
 
 void Board::GetValidBeetleMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet)
 {
-
+	// Temporary
+	GetValidSlides(pieceName, moveSet, 1);
 }
 
 void Board::GetValidGrasshopperMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet)
@@ -438,7 +447,51 @@ void Board::GetValidGrasshopperMoves(PieceName const& pieceName, std::shared_ptr
 
 void Board::GetValidSoldierAntMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet)
 {
+	GetValidSlides(pieceName, moveSet, -1);
+}
 
+void Board::GetValidSlides(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet, int maxRange)
+{
+	auto startingPosition = m_piecePositions[(int)pieceName];
+
+	auto visitedPositions = std::make_shared<PositionSet>();
+	visitedPositions->insert(startingPosition);
+
+	m_piecePositions[(int)pieceName].Stack = -1;
+	GetValidSlides(pieceName, moveSet, startingPosition, startingPosition, visitedPositions, 0, maxRange);
+	m_piecePositions[(int)pieceName].Stack = startingPosition.Stack;
+}
+
+void Board::GetValidSlides(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet, Position const& startingPosition, Position const& currentPosition, std::shared_ptr<PositionSet> visitedPositions, int currentRange, int maxRange)
+{
+	if (maxRange < 0 || currentRange < maxRange)
+	{
+		for (int slideDirection = 0; slideDirection < (int)Direction::NumDirections; slideDirection++)
+		{
+			auto slidePosition = currentPosition.GetNeighborAt((Direction)slideDirection);
+
+			if (visitedPositions->find(slidePosition) == visitedPositions->end() && !HasPieceAt(slidePosition))
+			{
+				// Slide position is open
+
+				auto left = LeftOf((Direction)slideDirection);
+				auto right = RightOf((Direction)slideDirection);
+
+				if (HasPieceAt(currentPosition.GetNeighborAt(right)) != HasPieceAt(currentPosition.GetNeighborAt(left)))
+				{
+					// Can slide into slide position
+					auto move = Move{ pieceName, startingPosition, slidePosition };
+
+					if (moveSet->find(move) == moveSet->end())
+					{
+						moveSet->insert(move);
+						visitedPositions->insert(slidePosition);
+						GetValidSlides(pieceName, moveSet, startingPosition, slidePosition, visitedPositions, currentRange + 1, maxRange);
+					}
+				}
+			}
+		}
+	}
 }
 
 bool Board::PlacingPieceInOrder(PieceName const& pieceName)
@@ -493,7 +546,7 @@ PieceName Board::GetPieceAt(Position const& position)
 PieceName Board::GetPieceOnTopAt(Position const& position)
 {
 	auto currentPosition = position.GetBottom();
-	
+
 	auto topPiece = GetPieceAt(currentPosition);
 
 	if (topPiece != PieceName::INVALID)

@@ -75,6 +75,9 @@ namespace MzingaCpp
 		NumDirections,
 	};
 
+	Direction LeftOf(Direction value);
+	Direction RightOf(Direction value);
+
 	enum class BugType
 	{
 		INVALID = -1,
