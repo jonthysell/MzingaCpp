@@ -33,7 +33,7 @@ namespace MzingaCpp
 		void WriteError();
 
 		void Info();
-		void NewGame();
+		void NewGame(std::string args);
 		void ValidMoves();
 		void BestMove();
 		void Play(std::string args);

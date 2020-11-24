@@ -28,7 +28,7 @@ void Engine::ReadLine(std::string line)
 	}
 	else if (line.rfind(CommandString_NewGame, 0) == 0)
 	{
-		NewGame();
+		NewGame(args);
 	}
 	else if (line == CommandString_ValidMoves)
 	{
@@ -86,9 +86,40 @@ void Engine::Info()
 	WriteLine(OkString);
 }
 
-void Engine::NewGame()
+void Engine::NewGame(std::string args)
 {
 	m_board = std::make_shared<Board>();
+
+	if (!args.empty())
+	{
+		std::istringstream ss(args);
+
+		std::string delimiter = ";";
+		std::string token;
+		std::string::iterator it;
+
+		int itemIndex = 0;
+		while (std::getline(ss, token, *(it = delimiter.begin())))
+		{
+			while (*(++it))
+			{
+				ss.get();
+			}
+
+			if (itemIndex > 2)
+			{
+				Move move;
+				std::string parsedMoveString;
+				if (!m_board->TryParseMove(token, move, parsedMoveString) || !m_board->TryPlayMove(move, parsedMoveString))
+				{
+					WriteError(ErrorMessage_Unknown);
+					return;
+				}
+			}
+
+			itemIndex++;
+		}
+	}
 
 	WriteLine(m_board->GetGameString());
 	WriteLine(OkString);
