@@ -155,7 +155,7 @@ bool Board::TryGetMoveString(Move const& move, std::string& result)
 		for (int dir = 0; dir < (int)Direction::NumDirections; dir++)
 		{
 			Position neighborPosition = move.Destination.GetNeighborAt((Direction)dir);
-			PieceName neighbor = GetPieceAt(neighborPosition);
+			PieceName neighbor = GetPieceOnTopAt(neighborPosition);
 
 			if (neighbor != PieceName::INVALID && neighbor != move.PieceName)
 			{
@@ -227,13 +227,13 @@ bool Board::TryParseMove(std::string moveString, Move& result, std::string& resu
 				switch (beforeSeperator)
 				{
 				case '-':
-					destination = targetPosition.GetNeighborAt(Direction::UpLeft);
+					destination = targetPosition.GetNeighborAt(Direction::UpLeft).GetBottom();
 					break;
 				case '/':
-					destination = targetPosition.GetNeighborAt(Direction::DownLeft);
+					destination = targetPosition.GetNeighborAt(Direction::DownLeft).GetBottom();
 					break;
 				case '\\':
-					destination = targetPosition.GetNeighborAt(Direction::Up);
+					destination = targetPosition.GetNeighborAt(Direction::Up).GetBottom();
 					break;
 				}
 			}
@@ -243,13 +243,13 @@ bool Board::TryParseMove(std::string moveString, Move& result, std::string& resu
 				switch (afterSeperator)
 				{
 				case '-':
-					destination = targetPosition.GetNeighborAt(Direction::DownRight);
+					destination = targetPosition.GetNeighborAt(Direction::DownRight).GetBottom();
 					break;
 				case '/':
-					destination = targetPosition.GetNeighborAt(Direction::UpRight);
+					destination = targetPosition.GetNeighborAt(Direction::UpRight).GetBottom();
 					break;
 				case '\\':
-					destination = targetPosition.GetNeighborAt(Direction::Down);
+					destination = targetPosition.GetNeighborAt(Direction::Down).GetBottom();
 					break;
 				}
 			}
@@ -417,8 +417,42 @@ void Board::GetValidSpiderMoves(PieceName const& pieceName, std::shared_ptr<Move
 
 void Board::GetValidBeetleMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet)
 {
-	// Temporary
-	GetValidSlides(pieceName, moveSet, 1);
+	// Look in all directions
+	for (int direction = 0; direction < (int)Direction::NumDirections; direction++)
+	{
+		auto newPosition = m_piecePositions[(int)pieceName].GetNeighborAt((Direction)direction);
+
+		auto topNeighbor = GetPieceOnTopAt(newPosition);
+
+		// Get positions to left and right or direction we're heading
+		auto leftOfTarget = LeftOf((Direction)direction);
+		auto rightOfTarget = RightOf((Direction)direction);
+		auto leftNeighborPosition = m_piecePositions[(int)pieceName].GetNeighborAt(leftOfTarget);
+		auto rightNeighborPosition = m_piecePositions[(int)pieceName].GetNeighborAt(rightOfTarget);
+
+		auto topLeftNeighbor = GetPieceOnTopAt(leftNeighborPosition);
+		auto topRightNeighbor = GetPieceOnTopAt(rightNeighborPosition);
+
+		// At least one neighbor is present
+		uint32_t currentHeight = m_piecePositions[(int)pieceName].Stack + 1;
+		uint32_t destinationHeight = topNeighbor != PieceName::INVALID ? m_piecePositions[(int)topNeighbor].Stack + 1 : 0;
+
+		uint32_t topLeftNeighborHeight = topLeftNeighbor != PieceName::INVALID ? m_piecePositions[(int)topLeftNeighbor].Stack + 1 : 0;
+		uint32_t topRightNeighborHeight = topRightNeighbor != PieceName::INVALID ? m_piecePositions[(int)topRightNeighbor].Stack + 1 : 0;
+
+		// "Take-off" beetle
+		currentHeight--;
+
+		if (!(currentHeight == 0 && destinationHeight == 0 && topLeftNeighborHeight == 0 && topRightNeighborHeight == 0))
+		{
+			// Logic from http://boardgamegeek.com/wiki/page/Hive_FAQ#toc9
+			if (!(destinationHeight < topLeftNeighborHeight && destinationHeight < topRightNeighborHeight && currentHeight < topLeftNeighborHeight && currentHeight < topRightNeighborHeight))
+			{
+				auto targetMove = Move{ pieceName,  m_piecePositions[(int)pieceName], Position { newPosition.Q, newPosition.R, (int)destinationHeight } };
+				moveSet->insert(targetMove);
+			}
+		}
+	}
 }
 
 void Board::GetValidGrasshopperMoves(PieceName const& pieceName, std::shared_ptr<MoveSet> moveSet)
