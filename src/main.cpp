@@ -8,21 +8,21 @@
 
 void WriteLine(std::string line)
 {
-	std::cout << line << std::endl;
+    std::cout << line << std::endl;
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-	MzingaCpp::Engine engine{ WriteLine };
+    MzingaCpp::Engine engine{WriteLine};
 
-	engine.Start();
+    engine.Start();
 
-	std::string line;
-	while (!engine.ExitRequested())
-	{
-		std::getline(std::cin, line);
-		engine.ReadLine(line);
-	}
+    std::string line;
+    while (!engine.ExitRequested())
+    {
+        std::getline(std::cin, line);
+        engine.ReadLine(line);
+    }
 
-	return 0;
+    return 0;
 }

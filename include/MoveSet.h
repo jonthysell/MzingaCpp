@@ -10,25 +10,25 @@
 
 namespace MzingaCpp
 {
-	struct MoveHasher
-	{
-	public:
-		size_t operator()(Move const& move) const
-		{
-			return hash(move);
-		}
-	};
+struct MoveHasher
+{
+  public:
+    size_t operator()(Move const &move) const
+    {
+        return hash(move);
+    }
+};
 
-	struct MoveComparator
-	{
-	public:
-		bool operator()(Move const& lhs, Move const& rhs) const
-		{
-			return lhs == rhs;
-		}
-	};
+struct MoveComparator
+{
+  public:
+    bool operator()(Move const &lhs, Move const &rhs) const
+    {
+        return lhs == rhs;
+    }
+};
 
-	typedef std::unordered_set<Move, MoveHasher, MoveComparator> MoveSet;
-}
+typedef std::unordered_set<Move, MoveHasher, MoveComparator> MoveSet;
+} // namespace MzingaCpp
 
 #endif
