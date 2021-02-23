@@ -104,26 +104,25 @@ void Engine::NewGame(std::string args)
         std::string::iterator it;
 
         int itemIndex = 0;
-        while (std::getline(ss, token, *(it = delimiter.begin())))
+        while (std::getline(ss, token, ';'))
         {
-            while (*(++it))
+            if (!token.empty())
             {
-                ss.get();
-            }
 
-            if (itemIndex > 2)
-            {
-                Move move;
-                std::string parsedMoveString;
-                if (!m_board->TryParseMove(token, move, parsedMoveString) ||
-                    !m_board->TryPlayMove(move, parsedMoveString))
+                if (itemIndex > 2)
                 {
-                    WriteError(ErrorMessage_Unknown);
-                    return;
+                    Move move;
+                    std::string parsedMoveString;
+                    if (!m_board->TryParseMove(token, move, parsedMoveString) ||
+                        !m_board->TryPlayMove(move, parsedMoveString))
+                    {
+                        WriteError(ErrorMessage_Unknown);
+                        return;
+                    }
                 }
-            }
 
-            itemIndex++;
+                itemIndex++;
+            }
         }
     }
 
