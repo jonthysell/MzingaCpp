@@ -179,6 +179,8 @@ Color GetColor(PieceName const &value)
     case PieceName::bA3:
         return Color::Black;
     }
+
+    return Color::NumColors;
 }
 
 Direction LeftOf(Direction value)

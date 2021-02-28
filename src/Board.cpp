@@ -98,7 +98,7 @@ bool Board::TryUndoLastMove()
 {
     if (m_moveHistory.size() > 0)
     {
-        auto lastMove = m_moveHistory.back();
+        auto const &lastMove = m_moveHistory.back();
 
         if (lastMove != PassMove)
         {
@@ -332,7 +332,7 @@ long Board::CalculatePerft(int depth)
 std::shared_ptr<Board> Board::Clone()
 {
     auto board = std::make_shared<Board>();
-    for (auto move : m_moveHistory)
+    for (auto const &move : m_moveHistory)
     {
         board->TrustedPlay(move);
     }
@@ -743,7 +743,7 @@ bool Board::CanMoveWithoutBreakingHive(PieceName const &pieceName)
 
 bool Board::IsOneHive()
 {
-    bool partOfHive[(int)PieceName::NumPieceNames];
+    bool partOfHive[(int)PieceName::NumPieceNames] = {};
     int piecesVisited = 0;
 
     // Find a piece on the board to start checking

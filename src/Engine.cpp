@@ -20,46 +20,74 @@ void Engine::Start()
 
 void Engine::ReadLine(std::string line)
 {
-    auto space = line.find(" ", 0);
-    auto args = space >= 0 ? line.substr(space + 1) : "";
+    std::string command;
+    std::string args;
 
-    if (line == CommandString_Info)
+    std::istringstream ss(line);
+    std::ostringstream argStream;
+
+    std::string token;
+
+    int itemIndex = 0;
+    while (std::getline(ss, token, ' '))
+    {
+        if (!token.empty())
+        {
+            if (itemIndex == 0)
+            {
+                command = token;
+            }
+            else if (itemIndex == 1)
+            {
+                argStream << token;
+            }
+            else
+            {
+                argStream << " " << token;
+            }
+            itemIndex++;
+        }
+    }
+
+    args = argStream.str();
+
+    if (command == CommandString_Info)
     {
         Info();
     }
-    else if (line.rfind(CommandString_NewGame, 0) == 0)
+    else if (command == CommandString_NewGame)
     {
         NewGame(args);
     }
-    else if (line == CommandString_ValidMoves)
+    else if (command == CommandString_ValidMoves)
     {
         ValidMoves();
     }
-    else if (line.rfind(CommandString_BestMove, 0) == 0)
+    else if (command == CommandString_BestMove)
     {
         BestMove();
     }
-    else if (line.rfind(CommandString_Play, 0) == 0)
+    else if (command == CommandString_Play)
     {
         Play(args);
     }
-    else if (line == CommandString_Pass)
+    else if (command == CommandString_Pass)
     {
         Pass();
     }
-    else if (line.rfind(CommandString_Undo, 0) == 0)
+    else if (command == CommandString_Undo)
     {
         Undo(args);
     }
-    else if (line == CommandString_Options)
+    else if (command == CommandString_Options)
     {
         Options();
     }
-    else if (line.rfind(CommandString_Perft, 0) == 0)
+    else if (command == CommandString_Perft)
     {
         Perft(args);
     }
-    else if (line == CommandString_Exit)
+    else if (command == CommandString_Exit)
     {
         Exit();
     }
@@ -99,9 +127,7 @@ void Engine::NewGame(std::string args)
     {
         std::istringstream ss(args);
 
-        std::string delimiter = ";";
         std::string token;
-        std::string::iterator it;
 
         int itemIndex = 0;
         while (std::getline(ss, token, ';'))
