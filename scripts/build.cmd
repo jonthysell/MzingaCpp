@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-pushd %~dp0
+pushd %~dp0\..
 
 mkdir build
 cd build
