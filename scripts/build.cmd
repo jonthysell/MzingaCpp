@@ -3,7 +3,7 @@ setlocal
 
 pushd %~dp0\..
 
-mkdir build
+mkdir build 2>&1
 cd build
 
 cmake ..
