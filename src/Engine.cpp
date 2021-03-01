@@ -316,7 +316,7 @@ void Engine::Perft(std::string args)
     for (int depth = 0; depth <= maxDepth; depth++)
     {
         auto startTime = std::chrono::high_resolution_clock::now();
-        auto nodes = m_board->ParallelPerft(depth);
+        auto nodes = m_board->CalculatePerft(depth);
         auto endTime = std::chrono::high_resolution_clock::now();
 
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);

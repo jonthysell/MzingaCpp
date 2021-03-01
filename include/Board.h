@@ -32,7 +32,6 @@ class Board
     bool TryGetMoveString(Move const &move, std::string &result);
     bool TryParseMove(std::string moveString, Move &result, std::string &resultString);
 
-    long ParallelPerft(int depth);
     long CalculatePerft(int depth);
 
     std::shared_ptr<Board> Clone();

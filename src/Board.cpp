@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 #include <assert.h>
-#include <atomic>
 #include <queue>
 #include <sstream>
-#include <thread>
 
 #include "Board.h"
 
@@ -259,47 +257,6 @@ bool Board::TryParseMove(std::string moveString, Move &result, std::string &resu
     return false;
 }
 
-long Board::ParallelPerft(int depth)
-{
-    if (depth == 0)
-    {
-        return 1;
-    }
-
-    auto moves = GetValidMoves();
-
-    if (depth == 1)
-    {
-        return moves->size();
-    }
-
-    std::atomic<long> nodes(0);
-
-    std::vector<std::thread> threads;
-    for (auto const &move : *moves)
-    {
-        auto clone = Clone();
-        auto func = [clone, &nodes, move, depth]() {
-            clone->TrustedPlay(move);
-            clone->m_moveHistoryStr.push_back("");
-            auto value = clone->CalculatePerft(depth - 1);
-
-            nodes.fetch_add(value);
-        };
-        threads.push_back(std::thread(func));
-    }
-
-    for (auto &th : threads)
-    {
-        if (th.joinable())
-        {
-            th.join();
-        }
-    }
-
-    return nodes;
-}
-
 long Board::CalculatePerft(int depth)
 {
     if (depth == 0)
@@ -335,6 +292,10 @@ std::shared_ptr<Board> Board::Clone()
     for (auto const &move : m_moveHistory)
     {
         board->TrustedPlay(move);
+    }
+    for (auto const &moveStr : m_moveHistoryStr)
+    {
+        board->m_moveHistoryStr.push_back(moveStr);
     }
     return board;
 }
