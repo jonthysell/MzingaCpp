@@ -45,8 +45,10 @@ class Board
     void GetValidBeetleMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
     void GetValidGrasshopperMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
     void GetValidSoldierAntMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
-    void GetValidMosquitoMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
+    void GetValidMosquitoMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet, bool const &specialAbilityOnly);
     void GetValidLadybugMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
+    void GetValidPillbugBasicMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
+    void GetValidPillbugSpecialMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
 
     void GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet, int maxRange);
     void GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet, Position const &startingPosition,
@@ -79,6 +81,8 @@ class Board
     BoardState m_boardState = BoardState::NotStarted;
     Color m_currentColor = Color::White;
     int m_currentTurn = 0;
+
+    PieceName m_lastPieceMoved = PieceName::INVALID;
 
     Position m_piecePositions[(int)PieceName::NumPieceNames];
 

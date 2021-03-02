@@ -47,6 +47,7 @@ enum class PieceName
     wA3,
     wM,
     wL,
+    wP,
     bQ,
     bS1,
     bS2,
@@ -60,6 +61,7 @@ enum class PieceName
     bA3,
     bM,
     bL,
+    bP,
     NumPieceNames
 };
 
@@ -92,6 +94,7 @@ enum class BugType
     SoldierAnt,
     Mosquito,
     Ladybug,
+    Pillbug,
     NumBugTypes,
 };
 
@@ -103,7 +106,11 @@ enum class GameType
     Base = 0,
     BaseM,
     BaseL,
+    BaseP,
     BaseML,
+    BaseMP,
+    BaseLP,
+    BaseMLP,
 };
 
 std::string GetEnumString(GameType const &value);

@@ -78,6 +78,8 @@ std::string GetEnumString(PieceName const &value)
         return "wM";
     case PieceName::wL:
         return "wL";
+    case PieceName::wP:
+        return "wP";
     case PieceName::bQ:
         return "bQ";
     case PieceName::bS1:
@@ -104,6 +106,8 @@ std::string GetEnumString(PieceName const &value)
         return "bM";
     case PieceName::bL:
         return "bL";
+    case PieceName::bP:
+        return "bP";
     default:
         return "";
     }
@@ -137,6 +141,8 @@ PieceName GetPieceNameValue(const char *str)
         return PieceName::wM;
     else if (strcmpi(str, "wL") == 0)
         return PieceName::wL;
+    else if (strcmpi(str, "wP") == 0)
+        return PieceName::wP;
     else if (strcmpi(str, "bQ") == 0)
         return PieceName::bQ;
     else if (strcmpi(str, "bS1") == 0)
@@ -163,6 +169,8 @@ PieceName GetPieceNameValue(const char *str)
         return PieceName::bM;
     else if (strcmpi(str, "bL") == 0)
         return PieceName::bL;
+    else if (strcmpi(str, "bP") == 0)
+        return PieceName::bP;
 
     return PieceName::INVALID;
 }
@@ -184,6 +192,7 @@ Color GetColor(PieceName const &value)
     case PieceName::wA3:
     case PieceName::wM:
     case PieceName::wL:
+    case PieceName::wP:
         return Color::White;
     case PieceName::bQ:
     case PieceName::bS1:
@@ -198,6 +207,7 @@ Color GetColor(PieceName const &value)
     case PieceName::bA3:
     case PieceName::bM:
     case PieceName::bL:
+    case PieceName::bP:
         return Color::Black;
     }
 
@@ -251,6 +261,9 @@ BugType GetBugType(PieceName const &value)
     case PieceName::wL:
     case PieceName::bL:
         return BugType::Ladybug;
+    case PieceName::wP:
+    case PieceName::bP:
+        return BugType::Pillbug;
     default:
         return BugType::INVALID;
     }
@@ -266,8 +279,16 @@ std::string GetEnumString(GameType const &value)
         return "Base+M";
     case GameType::BaseL:
         return "Base+L";
+    case GameType::BaseP:
+        return "Base+P";
     case GameType::BaseML:
         return "Base+ML";
+    case GameType::BaseMP:
+        return "Base+MP";
+    case GameType::BaseLP:
+        return "Base+LP";
+    case GameType::BaseMLP:
+        return "Base+MLP";
     default:
         return "";
     }
@@ -281,8 +302,16 @@ GameType GetGameTypeValue(const char *str)
         return GameType::BaseM;
     else if (strcmpi(str, "Base+L") == 0)
         return GameType::BaseL;
+    else if (strcmpi(str, "Base+P") == 0)
+        return GameType::BaseP;
     else if (strcmpi(str, "Base+ML") == 0)
         return GameType::BaseML;
+    else if (strcmpi(str, "Base+MP") == 0)
+        return GameType::BaseMP;
+    else if (strcmpi(str, "Base+LP") == 0)
+        return GameType::BaseLP;
+    else if (strcmpi(str, "Base+MLP") == 0)
+        return GameType::BaseMLP;
 
     return GameType::INVALID;
 }
@@ -295,10 +324,16 @@ bool PieceNameIsEnabledForGameType(PieceName const &pieceName, GameType const &g
         return false;
     case PieceName::wM:
     case PieceName::bM:
-        return gameType == GameType::BaseM || gameType == GameType::BaseML;
+        return gameType == GameType::BaseM || gameType == GameType::BaseML || gameType == GameType::BaseMP ||
+               gameType == GameType::BaseMLP;
     case PieceName::wL:
     case PieceName::bL:
-        return gameType == GameType::BaseL || gameType == GameType::BaseML;
+        return gameType == GameType::BaseL || gameType == GameType::BaseML || gameType == GameType::BaseLP ||
+               gameType == GameType::BaseMLP;
+    case PieceName::wP:
+    case PieceName::bP:
+        return gameType == GameType::BaseP || gameType == GameType::BaseMP || gameType == GameType::BaseLP ||
+               gameType == GameType::BaseMLP;
     default:
         return true;
     }

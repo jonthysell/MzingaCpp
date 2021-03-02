@@ -106,6 +106,8 @@ bool Board::TryUndoLastMove()
         m_moveHistory.pop_back();
         m_moveHistoryStr.pop_back();
 
+        m_lastPieceMoved = m_moveHistory.size() > 0 ? m_moveHistory.back().PieceName : PieceName::INVALID;
+
         m_currentTurn--;
 
         ResetState();
@@ -341,32 +343,53 @@ void Board::GetValidMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> m
                 }
             }
         }
-        else if (CurrentTurnQueenInPlay && CanMoveWithoutBreakingHive(pieceName))
+        else if (pieceName != m_lastPieceMoved && CurrentTurnQueenInPlay && PieceIsOnTop(pieceName))
         {
-            // Piece is in play and movement is allowed
-            switch (GetBugType(pieceName))
+            // Piece is in play and not covered
+            if (CanMoveWithoutBreakingHive(pieceName))
             {
-            case BugType::QueenBee:
-                GetValidQueenBeeMoves(pieceName, moveSet);
-                break;
-            case BugType::Spider:
-                GetValidSpiderMoves(pieceName, moveSet);
-                break;
-            case BugType::Beetle:
-                GetValidBeetleMoves(pieceName, moveSet);
-                break;
-            case BugType::Grasshopper:
-                GetValidGrasshopperMoves(pieceName, moveSet);
-                break;
-            case BugType::SoldierAnt:
-                GetValidSoldierAntMoves(pieceName, moveSet);
-                break;
-            case BugType::Mosquito:
-                GetValidMosquitoMoves(pieceName, moveSet);
-                break;
-            case BugType::Ladybug:
-                GetValidLadybugMoves(pieceName, moveSet);
-                break;
+                // Look for basic valid moves of played pieces who can move
+                switch (GetBugType(pieceName))
+                {
+                case BugType::QueenBee:
+                    GetValidQueenBeeMoves(pieceName, moveSet);
+                    break;
+                case BugType::Spider:
+                    GetValidSpiderMoves(pieceName, moveSet);
+                    break;
+                case BugType::Beetle:
+                    GetValidBeetleMoves(pieceName, moveSet);
+                    break;
+                case BugType::Grasshopper:
+                    GetValidGrasshopperMoves(pieceName, moveSet);
+                    break;
+                case BugType::SoldierAnt:
+                    GetValidSoldierAntMoves(pieceName, moveSet);
+                    break;
+                case BugType::Mosquito:
+                    GetValidMosquitoMoves(pieceName, moveSet, false);
+                    break;
+                case BugType::Ladybug:
+                    GetValidLadybugMoves(pieceName, moveSet);
+                    break;
+                case BugType::Pillbug:
+                    GetValidPillbugBasicMoves(pieceName, moveSet);
+                    GetValidPillbugSpecialMoves(pieceName, moveSet);
+                    break;
+                }
+            }
+            else
+            {
+                // Check for special ability moves
+                switch (GetBugType(pieceName))
+                {
+                case BugType::Mosquito:
+                    GetValidMosquitoMoves(pieceName, moveSet, true);
+                    break;
+                case BugType::Pillbug:
+                    GetValidPillbugSpecialMoves(pieceName, moveSet);
+                    break;
+                }
             }
         }
     }
@@ -531,11 +554,12 @@ void Board::GetValidSoldierAntMoves(PieceName const &pieceName, std::shared_ptr<
     GetValidSlides(pieceName, moveSet, -1);
 }
 
-void Board::GetValidMosquitoMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet)
+void Board::GetValidMosquitoMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet,
+                                  bool const &specialAbilityOnly)
 {
     auto position = m_piecePositions[(int)pieceName];
 
-    if (position.Stack > 0)
+    if (position.Stack > 0 && !specialAbilityOnly)
     {
         // Mosquito on top acts like a beetle
         GetValidBeetleMoves(pieceName, moveSet);
@@ -554,26 +578,40 @@ void Board::GetValidMosquitoMoves(PieceName const &pieceName, std::shared_ptr<Mo
         if (neighborPieceName != PieceName::INVALID && !bugTypesEvaluated[(int)(neighborBugType)])
         {
             auto newMoves = std::make_shared<MoveSet>();
-            switch (neighborBugType)
+            if (specialAbilityOnly)
             {
-            case BugType::QueenBee:
-                GetValidQueenBeeMoves(pieceName, newMoves);
-                break;
-            case BugType::Spider:
-                GetValidSpiderMoves(pieceName, newMoves);
-                break;
-            case BugType::Beetle:
-                GetValidBeetleMoves(pieceName, newMoves);
-                break;
-            case BugType::Grasshopper:
-                GetValidGrasshopperMoves(pieceName, newMoves);
-                break;
-            case BugType::SoldierAnt:
-                GetValidSoldierAntMoves(pieceName, newMoves);
-                break;
-            case BugType::Ladybug:
-                GetValidLadybugMoves(pieceName, newMoves);
-                break;
+                if (neighborBugType == BugType::Pillbug)
+                {
+                    GetValidPillbugSpecialMoves(pieceName, newMoves);
+                }
+            }
+            else
+            {
+                switch (neighborBugType)
+                {
+                case BugType::QueenBee:
+                    GetValidQueenBeeMoves(pieceName, newMoves);
+                    break;
+                case BugType::Spider:
+                    GetValidSpiderMoves(pieceName, newMoves);
+                    break;
+                case BugType::Beetle:
+                    GetValidBeetleMoves(pieceName, newMoves);
+                    break;
+                case BugType::Grasshopper:
+                    GetValidGrasshopperMoves(pieceName, newMoves);
+                    break;
+                case BugType::SoldierAnt:
+                    GetValidSoldierAntMoves(pieceName, newMoves);
+                    break;
+                case BugType::Ladybug:
+                    GetValidLadybugMoves(pieceName, newMoves);
+                    break;
+                case BugType::Pillbug:
+                    GetValidPillbugBasicMoves(pieceName, newMoves);
+                    GetValidPillbugSpecialMoves(pieceName, newMoves);
+                    break;
+                }
             }
 
             if (!newMoves->empty())
@@ -628,6 +666,51 @@ void Board::GetValidLadybugMoves(PieceName const &pieceName, std::shared_ptr<Mov
             }
 
             m_piecePositions[(int)pieceName] = startingPosition;
+        }
+    }
+}
+
+void Board::GetValidPillbugBasicMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet)
+{
+    GetValidSlides(pieceName, moveSet, 1);
+}
+
+void Board::GetValidPillbugSpecialMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet)
+{
+    auto positionAboveTargetPiece = m_piecePositions[(int)pieceName].GetAbove();
+
+    for (int dir = 0; dir < (int)Direction::NumDirections; dir++)
+    {
+        auto neighborPosition = m_piecePositions[(int)pieceName].GetNeighborAt((Direction)dir);
+        auto neighborPieceName = GetPieceAt(neighborPosition);
+
+        if (neighborPieceName != PieceName::INVALID && neighborPieceName != m_lastPieceMoved &&
+            GetPieceAt(neighborPosition.GetAbove()) == PieceName::INVALID &&
+            CanMoveWithoutBreakingHive(neighborPieceName))
+        {
+            // Piece can be moved
+            auto firstMove = Move{neighborPieceName, neighborPosition, positionAboveTargetPiece};
+            auto firstMoves = std::make_shared<MoveSet>();
+            GetValidBeetleMoves(neighborPieceName, firstMoves);
+            if (firstMoves->find(firstMove) != firstMoves->end())
+            {
+                // Piece can be moved on top
+                m_piecePositions[(int)neighborPieceName] = positionAboveTargetPiece;
+
+                auto secondMoves = std::make_shared<MoveSet>();
+                GetValidBeetleMoves(neighborPieceName, secondMoves);
+
+                for (auto const &secondMove : *secondMoves)
+                {
+                    if (secondMove.Destination.Stack == 0 && secondMove.Destination != neighborPosition)
+                    {
+                        auto finalMove = Move{neighborPieceName, neighborPosition, secondMove.Destination};
+                        moveSet->insert(finalMove);
+                    }
+                }
+
+                m_piecePositions[(int)neighborPieceName] = neighborPosition;
+            }
         }
     }
 }
@@ -689,6 +772,7 @@ void Board::TrustedPlay(Move const &move)
     }
 
     m_currentTurn++;
+    m_lastPieceMoved = move.PieceName;
 
     ResetState();
     ResetCaches();
