@@ -46,6 +46,7 @@ class Board
     void GetValidGrasshopperMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
     void GetValidSoldierAntMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
     void GetValidMosquitoMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
+    void GetValidLadybugMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
 
     void GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet, int maxRange);
     void GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet, Position const &startingPosition,

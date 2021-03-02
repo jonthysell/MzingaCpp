@@ -364,6 +364,9 @@ void Board::GetValidMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> m
             case BugType::Mosquito:
                 GetValidMosquitoMoves(pieceName, moveSet);
                 break;
+            case BugType::Ladybug:
+                GetValidLadybugMoves(pieceName, moveSet);
+                break;
             }
         }
     }
@@ -568,6 +571,9 @@ void Board::GetValidMosquitoMoves(PieceName const &pieceName, std::shared_ptr<Mo
             case BugType::SoldierAnt:
                 GetValidSoldierAntMoves(pieceName, newMoves);
                 break;
+            case BugType::Ladybug:
+                GetValidLadybugMoves(pieceName, newMoves);
+                break;
             }
 
             if (!newMoves->empty())
@@ -579,6 +585,49 @@ void Board::GetValidMosquitoMoves(PieceName const &pieceName, std::shared_ptr<Mo
             }
 
             bugTypesEvaluated[(int)(neighborBugType)] = true;
+        }
+    }
+}
+
+void Board::GetValidLadybugMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet)
+{
+    auto startingPosition = m_piecePositions[(int)pieceName];
+
+    auto firstMoves = std::make_shared<MoveSet>();
+    GetValidBeetleMoves(pieceName, firstMoves);
+
+    for (auto const &firstMove : *firstMoves)
+    {
+        if (firstMove.Destination.Stack > 0)
+        {
+            m_piecePositions[(int)pieceName] = firstMove.Destination;
+
+            auto secondMoves = std::make_shared<MoveSet>();
+            GetValidBeetleMoves(pieceName, secondMoves);
+
+            for (auto const &secondMove : *secondMoves)
+            {
+                if (secondMove.Destination.Stack > 0)
+                {
+                    m_piecePositions[(int)pieceName] = secondMove.Destination;
+
+                    auto thirdMoves = std::make_shared<MoveSet>();
+                    GetValidBeetleMoves(pieceName, thirdMoves);
+
+                    for (auto const &thirdMove : *thirdMoves)
+                    {
+                        if (thirdMove.Destination.Stack == 0 && thirdMove.Destination != startingPosition)
+                        {
+                            auto finalMove = Move{pieceName, startingPosition, thirdMove.Destination};
+                            moveSet->insert(finalMove);
+                        }
+                    }
+
+                    m_piecePositions[(int)pieceName] = firstMove.Destination;
+                }
+            }
+
+            m_piecePositions[(int)pieceName] = startingPosition;
         }
     }
 }
