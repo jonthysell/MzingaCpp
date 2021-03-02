@@ -13,7 +13,7 @@ using namespace MzingaCpp;
 
 #define CurrentTurnQueenInPlay PieceInPlay(m_currentColor == Color::White ? PieceName::wQ : PieceName::bQ)
 
-Board::Board()
+Board::Board(GameType gameType) : m_gameType(gameType)
 {
     for (int pn = 0; pn < (int)PieceName::NumPieceNames; pn++)
     {
@@ -35,7 +35,7 @@ std::string Board::GetGameString()
 {
     std::ostringstream str;
 
-    str << "Base";
+    str << GetEnumString(m_gameType);
     str << ";" << GetEnumString(m_boardState);
     str << ";" << GetEnumString(m_currentColor) << "[" << CurrentPlayerTurn << "]";
 
@@ -288,7 +288,7 @@ long Board::CalculatePerft(int depth)
 
 std::shared_ptr<Board> Board::Clone()
 {
-    auto board = std::make_shared<Board>();
+    auto board = std::make_shared<Board>(m_gameType);
     for (auto const &move : m_moveHistory)
     {
         board->TrustedPlay(move);
@@ -302,8 +302,8 @@ std::shared_ptr<Board> Board::Clone()
 
 void Board::GetValidMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet)
 {
-    if (pieceName != PieceName::INVALID && GameInProgress(m_boardState) && m_currentColor == GetColor(pieceName) &&
-        PlacingPieceInOrder(pieceName))
+    if (PieceNameIsEnabledForGameType(pieceName, m_gameType) && GameInProgress(m_boardState) &&
+        m_currentColor == GetColor(pieceName) && PlacingPieceInOrder(pieceName))
     {
         int pieceIndex = (int)pieceName;
 
@@ -360,6 +360,9 @@ void Board::GetValidMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> m
                 break;
             case BugType::SoldierAnt:
                 GetValidSoldierAntMoves(pieceName, moveSet);
+                break;
+            case BugType::Mosquito:
+                GetValidMosquitoMoves(pieceName, moveSet);
                 break;
             }
         }
@@ -523,6 +526,61 @@ void Board::GetValidGrasshopperMoves(PieceName const &pieceName, std::shared_ptr
 void Board::GetValidSoldierAntMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet)
 {
     GetValidSlides(pieceName, moveSet, -1);
+}
+
+void Board::GetValidMosquitoMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet)
+{
+    auto position = m_piecePositions[(int)pieceName];
+
+    if (position.Stack > 0)
+    {
+        // Mosquito on top acts like a beetle
+        GetValidBeetleMoves(pieceName, moveSet);
+        return;
+    }
+
+    bool bugTypesEvaluated[(int)BugType::NumBugTypes] = {};
+
+    for (int dir = 0; dir < (int)Direction::NumDirections; dir++)
+    {
+        auto neighborPosition = position.GetNeighborAt((Direction)dir);
+        auto neighborPieceName = GetPieceOnTopAt(neighborPosition);
+
+        auto neighborBugType = GetBugType(neighborPieceName);
+
+        if (neighborPieceName != PieceName::INVALID && !bugTypesEvaluated[(int)(neighborBugType)])
+        {
+            auto newMoves = std::make_shared<MoveSet>();
+            switch (neighborBugType)
+            {
+            case BugType::QueenBee:
+                GetValidQueenBeeMoves(pieceName, newMoves);
+                break;
+            case BugType::Spider:
+                GetValidSpiderMoves(pieceName, newMoves);
+                break;
+            case BugType::Beetle:
+                GetValidBeetleMoves(pieceName, newMoves);
+                break;
+            case BugType::Grasshopper:
+                GetValidGrasshopperMoves(pieceName, newMoves);
+                break;
+            case BugType::SoldierAnt:
+                GetValidSoldierAntMoves(pieceName, newMoves);
+                break;
+            }
+
+            if (!newMoves->empty())
+            {
+                for (auto const &it : *newMoves)
+                {
+                    moveSet->insert(it);
+                }
+            }
+
+            bugTypesEvaluated[(int)(neighborBugType)] = true;
+        }
+    }
 }
 
 void Board::GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet, int maxRange)

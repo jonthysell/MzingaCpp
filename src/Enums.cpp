@@ -5,6 +5,7 @@
 
 namespace MzingaCpp
 {
+
 std::string GetEnumString(Color const &value)
 {
     switch (value)
@@ -73,6 +74,8 @@ std::string GetEnumString(PieceName const &value)
         return "wA2";
     case PieceName::wA3:
         return "wA3";
+    case PieceName::wM:
+        return "wM";
     case PieceName::bQ:
         return "bQ";
     case PieceName::bS1:
@@ -95,6 +98,8 @@ std::string GetEnumString(PieceName const &value)
         return "bA2";
     case PieceName::bA3:
         return "bA3";
+    case PieceName::bM:
+        return "bM";
     default:
         return "";
     }
@@ -124,6 +129,8 @@ PieceName GetPieceNameValue(const char *str)
         return PieceName::wA2;
     else if (strcmpi(str, "wA3") == 0)
         return PieceName::wA3;
+    else if (strcmpi(str, "wM") == 0)
+        return PieceName::wM;
     else if (strcmpi(str, "bQ") == 0)
         return PieceName::bQ;
     else if (strcmpi(str, "bS1") == 0)
@@ -146,6 +153,8 @@ PieceName GetPieceNameValue(const char *str)
         return PieceName::bA2;
     else if (strcmpi(str, "bA3") == 0)
         return PieceName::bA3;
+    else if (strcmpi(str, "bM") == 0)
+        return PieceName::bM;
 
     return PieceName::INVALID;
 }
@@ -165,6 +174,7 @@ Color GetColor(PieceName const &value)
     case PieceName::wA1:
     case PieceName::wA2:
     case PieceName::wA3:
+    case PieceName::wM:
         return Color::White;
     case PieceName::bQ:
     case PieceName::bS1:
@@ -177,6 +187,7 @@ Color GetColor(PieceName const &value)
     case PieceName::bA1:
     case PieceName::bA2:
     case PieceName::bA3:
+    case PieceName::bM:
         return Color::Black;
     }
 
@@ -224,8 +235,49 @@ BugType GetBugType(PieceName const &value)
     case PieceName::bA2:
     case PieceName::bA3:
         return BugType::SoldierAnt;
+    case PieceName::wM:
+    case PieceName::bM:
+        return BugType::Mosquito;
     default:
         return BugType::INVALID;
     }
 }
+
+std::string GetEnumString(GameType const &value)
+{
+    switch (value)
+    {
+    case GameType::Base:
+        return "Base";
+    case GameType::BaseM:
+        return "Base+M";
+    default:
+        return "";
+    }
+}
+
+GameType GetGameTypeValue(const char *str)
+{
+    if (strcmpi(str, "Base") == 0)
+        return GameType::Base;
+    else if (strcmpi(str, "Base+M") == 0)
+        return GameType::BaseM;
+
+    return GameType::INVALID;
+}
+
+bool PieceNameIsEnabledForGameType(PieceName const &pieceName, GameType const &gameType)
+{
+    switch (pieceName)
+    {
+    case PieceName::INVALID:
+        return false;
+    case PieceName::wM:
+    case PieceName::bM:
+        return gameType == GameType::BaseM;
+    default:
+        return true;
+    }
+}
+
 } // namespace MzingaCpp

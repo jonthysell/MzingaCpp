@@ -18,7 +18,7 @@ namespace MzingaCpp
 class Board
 {
   public:
-    Board();
+    Board(GameType gameType);
 
     BoardState GetBoardState();
     int GetCurrentTurn();
@@ -45,6 +45,7 @@ class Board
     void GetValidBeetleMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
     void GetValidGrasshopperMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
     void GetValidSoldierAntMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
+    void GetValidMosquitoMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
 
     void GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet, int maxRange);
     void GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet, Position const &startingPosition,
@@ -73,6 +74,7 @@ class Board
     void ResetState();
     void ResetCaches();
 
+    GameType m_gameType = GameType::Base;
     BoardState m_boardState = BoardState::NotStarted;
     Color m_currentColor = Color::White;
     int m_currentTurn = 0;

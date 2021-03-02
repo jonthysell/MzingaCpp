@@ -9,6 +9,7 @@
 namespace MzingaCpp
 {
 constexpr const char *IdString = "id MzingaCpp 0.9";
+constexpr const char *CapabilitiesString = "Mosquito";
 
 constexpr const char *OkString = "ok";
 
