@@ -1,0 +1,35 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  pr_build_and_test:
+    name: PR Build
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        architecture: [Win32]
+        configuration: [Debug]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+        cmake -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} ..
+        cmake --build . --config ${{ matrix.configuration }}
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: Windows.${{ matrix.architecture }}.${{ matrix.configuration }}
+        path: build/${{ matrix.configuration }}/*
