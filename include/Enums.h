@@ -45,6 +45,9 @@ enum class PieceName
     wA1,
     wA2,
     wA3,
+    wM,
+    wL,
+    wP,
     bQ,
     bS1,
     bS2,
@@ -56,6 +59,9 @@ enum class PieceName
     bA1,
     bA2,
     bA3,
+    bM,
+    bL,
+    bP,
     NumPieceNames
 };
 
@@ -86,10 +92,32 @@ enum class BugType
     Beetle,
     Grasshopper,
     SoldierAnt,
+    Mosquito,
+    Ladybug,
+    Pillbug,
     NumBugTypes,
 };
 
 BugType GetBugType(PieceName const &value);
+
+enum class GameType
+{
+    INVALID = -1,
+    Base = 0,
+    BaseM,
+    BaseL,
+    BaseP,
+    BaseML,
+    BaseMP,
+    BaseLP,
+    BaseMLP,
+};
+
+std::string GetEnumString(GameType const &value);
+GameType GetGameTypeValue(const char *str);
+
+bool PieceNameIsEnabledForGameType(PieceName const &pieceName, GameType const &gameType);
+
 } // namespace MzingaCpp
 
 #endif

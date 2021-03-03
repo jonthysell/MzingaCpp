@@ -116,12 +116,13 @@ void Engine::WriteError()
 void Engine::Info()
 {
     WriteLine(IdString);
+    WriteLine(CapabilitiesString);
     WriteLine(OkString);
 }
 
 void Engine::NewGame(std::string args)
 {
-    m_board = std::make_shared<Board>();
+    GameType gameType = GameType::Base;
 
     if (!args.empty())
     {
@@ -134,7 +135,16 @@ void Engine::NewGame(std::string args)
         {
             if (!token.empty())
             {
-
+                if (itemIndex == 0)
+                {
+                    gameType = GetGameTypeValue(token.c_str());
+                    if (gameType == GameType::INVALID)
+                    {
+                        WriteError(ErrorMessage_Unknown);
+                        return;
+                    }
+                    m_board = std::make_shared<Board>(gameType);
+                }
                 if (itemIndex > 2)
                 {
                     Move move;
@@ -150,6 +160,11 @@ void Engine::NewGame(std::string args)
                 itemIndex++;
             }
         }
+    }
+
+    if (m_board == nullptr)
+    {
+        m_board = std::make_shared<Board>(gameType);
     }
 
     WriteLine(m_board->GetGameString());
