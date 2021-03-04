@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 #include <chrono>
+#include <cmath>
 #include <sstream>
 
 #include "Constants.h"

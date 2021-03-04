@@ -13,7 +13,7 @@ namespace MzingaCpp
 {
 struct Move
 {
-    PieceName PieceName;
+    MzingaCpp::PieceName PieceName;
     Position Source;
     Position Destination;
 };

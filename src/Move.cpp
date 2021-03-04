@@ -1,6 +1,7 @@
 // Copyright (c) Jon Thysell <http://jonthysell.com>
 // Licensed under the MIT License.
 
+#include <cstring>
 #include <sstream>
 #include <string>
 
@@ -155,7 +156,7 @@ bool TryNormalizeMoveString(std::string const &moveString, bool &isPass, PieceNa
 
     std::string piece1Str = piece1.str();
 
-    if (strcmpi(piece1Str.c_str(), PassMoveString) == 0)
+    if (strcmp(piece1Str.c_str(), PassMoveString) == 0)
     {
         isPass = true;
         return true;
