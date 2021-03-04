@@ -31,5 +31,31 @@ jobs:
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: Windows.${{ matrix.architecture }}.${{ matrix.configuration }}
+        name: MzingaCpp.Windows.${{ matrix.architecture }}.${{ matrix.configuration }}
         path: build/${{ matrix.configuration }}/*
+
+  ci_build_linux:
+    name: CI Linux Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Build
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.configuration }}
+        cmake --build . --config ${{ matrix.configuration }}
+    
+    - name: Tar Files
+      run: tar -C build/${{ matrix.configuration }} . -cvzf MzingaCpp.Linux.${{ matrix.configuration }}.tar.gz
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: MzingaCpp.Linux.${{ matrix.configuration }}
+        path: MzingaCpp.Linux.${{ matrix.configuration }}.tar.gz
