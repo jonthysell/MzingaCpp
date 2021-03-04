@@ -468,14 +468,16 @@ void Board::GetValidQueenBeeMoves(PieceName const &pieceName, std::shared_ptr<Mo
 
 void Board::GetValidSpiderMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet)
 {
-    GetValidSlides(pieceName, moveSet, 3);
+    // Get all slides up to 3 spots away
+    auto upToThree = std::make_shared<MoveSet>();
+    GetValidSlides(pieceName, upToThree, 3);
 
-    auto upToTwo = std::make_shared<MoveSet>();
-    GetValidSlides(pieceName, upToTwo, 2);
-
-    for (auto const &move : *upToTwo)
+    for (auto const &move : *upToThree)
     {
-        moveSet->erase(move);
+        if (CanSlideToPositionInExactRange(pieceName, move.Destination, 3))
+        {
+            moveSet->insert(move);
+        }
     }
 }
 
@@ -760,6 +762,57 @@ void Board::GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> 
             }
         }
     }
+}
+
+bool Board::CanSlideToPositionInExactRange(PieceName const &pieceName, Position const &targetPosition, int targetRange)
+{
+    auto startingPosition = m_piecePositions[(int)pieceName];
+
+    m_piecePositions[(int)pieceName].Stack = -1;
+    auto result =
+        CanSlideToPositionInExactRange(pieceName, targetPosition, NullPosition, startingPosition, 0, targetRange);
+    m_piecePositions[(int)pieceName].Stack = startingPosition.Stack;
+
+    return result;
+}
+
+bool Board::CanSlideToPositionInExactRange(PieceName const &pieceName, Position const &targetPosition,
+                                           Position const &lastPosition, Position const &currentPosition,
+                                           int currentRange, int targetRange)
+{
+    bool result = false;
+    if (currentRange < targetRange)
+    {
+        for (int slideDirection = 0; slideDirection < (int)Direction::NumDirections; slideDirection++)
+        {
+            Position slidePosition = currentPosition.GetNeighborAt((Direction)slideDirection);
+
+            if (slidePosition != lastPosition && !HasPieceAt(slidePosition))
+            {
+                // Slide position is open
+
+                auto right = RightOf((Direction)slideDirection);
+                auto left = LeftOf((Direction)slideDirection);
+
+                if (HasPieceAt(currentPosition.GetNeighborAt(right)) != HasPieceAt(currentPosition.GetNeighborAt(left)))
+                {
+                    // Can slide into slide position
+
+                    if (targetPosition == slidePosition && currentRange + 1 == targetRange)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        result = result || CanSlideToPositionInExactRange(pieceName, targetPosition, currentPosition,
+                                                                          slidePosition, currentRange + 1, targetRange);
+                    }
+                }
+            }
+        }
+    }
+
+    return result;
 }
 
 void Board::TrustedPlay(Move const &move)

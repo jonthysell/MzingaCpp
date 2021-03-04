@@ -18,7 +18,7 @@ struct Move
     Position Destination;
 };
 
-static const Move PassMove{PieceName::INVALID};
+static const Move PassMove{PieceName::INVALID, NullPosition, NullPosition};
 
 bool operator==(Move const &lhs, Move const &rhs);
 bool operator!=(Move const &lhs, Move const &rhs);

@@ -47,7 +47,8 @@ class Board
     void GetValidBeetleMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
     void GetValidGrasshopperMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
     void GetValidSoldierAntMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
-    void GetValidMosquitoMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet, bool const &specialAbilityOnly);
+    void GetValidMosquitoMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet,
+                               bool const &specialAbilityOnly);
     void GetValidLadybugMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
     void GetValidPillbugBasicMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
     void GetValidPillbugSpecialMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
@@ -56,6 +57,11 @@ class Board
     void GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet, Position const &startingPosition,
                         Position const &currentPosition, std::shared_ptr<PositionSet> visitedPositions,
                         int currentRange, int maxRange);
+
+    bool CanSlideToPositionInExactRange(PieceName const &pieceName, Position const &targetPosition, int targetRange);
+    bool CanSlideToPositionInExactRange(PieceName const &pieceName, Position const &targetPosition,
+                                        Position const &lastPosition, Position const &currentPosition, int currentRange,
+                                        int targetRange);
 
     void TrustedPlay(Move const &move);
 
