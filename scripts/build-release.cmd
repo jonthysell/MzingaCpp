@@ -3,8 +3,11 @@ setlocal
 
 pushd %~dp0\..
 
-call .\scripts\build.cmd >nul
-call build\Debug\mzingacpp.exe %*
+mkdir build 2>&1
+cd build
+
+cmake ..
+cmake --build . --config Release
 
 popd
 

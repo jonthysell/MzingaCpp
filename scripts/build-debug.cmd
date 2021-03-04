@@ -7,7 +7,7 @@ mkdir build 2>&1
 cd build
 
 cmake ..
-cmake --build . %*
+cmake --build . --config Debug
 
 popd
 
