@@ -53,7 +53,8 @@ std::shared_ptr<MoveSet> Board::GetValidMoves()
 
     if (GameInProgress(m_boardState))
     {
-        for (int pn = 0; pn < (int)PieceName::NumPieceNames; pn++)
+        for (int pn = (int)(m_currentColor == Color::White ? PieceName::wQ : PieceName::bQ);
+             pn < (int)(m_currentColor == Color::White ? PieceName::bQ : PieceName::NumPieceNames); pn++)
         {
             GetValidMoves((PieceName)pn, validMoves);
         }
@@ -317,8 +318,8 @@ void Board::GetValidMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> m
             // First turn by black
             if (pieceName != PieceName::bQ)
             {
-                auto validPlacements = GetValidPlacements();
-                for (auto const &iter : *validPlacements)
+                CalculateValidPlacements();
+                for (auto const &iter : m_cachedValidPlacements)
                 {
                     moveSet->insert(Move{pieceName, GetPosition(pieceName), iter});
                 }
@@ -331,8 +332,8 @@ void Board::GetValidMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> m
                  (CurrentPlayerTurn == 4 &&
                   (CurrentTurnQueenInPlay || (!CurrentTurnQueenInPlay && GetBugType(pieceName) == BugType::QueenBee)))))
             {
-                auto validPlacements = GetValidPlacements();
-                for (auto const &iter : *validPlacements)
+                CalculateValidPlacements();
+                for (auto const &iter : m_cachedValidPlacements)
                 {
                     moveSet->insert(Move{pieceName, GetPosition(pieceName), iter});
                 }
@@ -390,43 +391,42 @@ void Board::GetValidMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> m
     }
 }
 
-std::shared_ptr<PositionSet> Board::GetValidPlacements()
+void Board::CalculateValidPlacements()
 {
-    if (nullptr == m_cachedValidPlacements)
+    if (!m_cachedValidPlacementsReady)
     {
-        m_cachedValidPlacements = std::make_shared<PositionSet>();
-
         if (m_currentTurn == 0)
         {
-            m_cachedValidPlacements->insert(OriginPosition);
+            m_cachedValidPlacements.insert(OriginPosition);
         }
         else if (m_currentTurn == 1)
         {
             for (int dir = 0; dir < (int)Direction::NumDirections; dir++)
             {
-                m_cachedValidPlacements->insert(OriginPosition.GetNeighborAt((Direction)dir));
+                m_cachedValidPlacements.insert(OriginPosition.GetNeighborAt((Direction)dir));
             }
         }
         else
         {
-            auto visitedPlacements = std::make_shared<PositionSet>();
+            PositionSet visitedPlacements;
 
-            for (int pn = 0; pn < (int)PieceName::NumPieceNames; pn++)
+            for (int pn = (int)(m_currentColor == Color::White ? PieceName::wQ : PieceName::bQ);
+                 pn < (int)(m_currentColor == Color::White ? PieceName::bQ : PieceName::NumPieceNames); pn++)
             {
                 auto pieceName = (PieceName)pn;
 
-                if (PieceIsOnTop(pieceName) && m_currentColor == GetColor(pieceName))
+                if (PieceIsOnTop(pieceName))
                 {
                     auto bottomPosition = GetPosition(pieceName).GetBottom();
-                    visitedPlacements->insert(bottomPosition);
+                    visitedPlacements.insert(bottomPosition);
 
                     for (int dir = 0; dir < (int)Direction::NumDirections; dir++)
                     {
                         auto neighbor = bottomPosition.GetNeighborAt((Direction)dir);
 
-                        if (visitedPlacements->find(neighbor) == visitedPlacements->end() && !HasPieceAt(neighbor))
+                        if (visitedPlacements.find(neighbor) == visitedPlacements.end() && !HasPieceAt(neighbor))
                         {
-                            visitedPlacements->insert(neighbor);
+                            visitedPlacements.insert(neighbor);
 
                             // Neighboring position is a potential, verify its neighbors are empty or same color
 
@@ -445,15 +445,15 @@ std::shared_ptr<PositionSet> Board::GetValidPlacements()
 
                             if (validPlacement)
                             {
-                                m_cachedValidPlacements->insert(neighbor);
+                                m_cachedValidPlacements.insert(neighbor);
                             }
                         }
                     }
                 }
             }
         }
+        m_cachedValidPlacementsReady = true;
     }
-    return m_cachedValidPlacements;
 }
 
 void Board::GetValidQueenBeeMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet)
@@ -1065,6 +1065,6 @@ void Board::ResetState()
 
 void Board::ResetCaches()
 {
-    m_cachedValidPlacements = nullptr;
-    //m_cachedValidMoves = nullptr;
+    m_cachedValidPlacementsReady = false;
+    m_cachedValidPlacements.clear();
 }

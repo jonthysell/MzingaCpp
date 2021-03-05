@@ -41,7 +41,7 @@ class Board
 
   private:
     void GetValidMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
-    std::shared_ptr<PositionSet> GetValidPlacements();
+    void CalculateValidPlacements();
 
     void GetValidQueenBeeMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
     void GetValidSpiderMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet);
@@ -102,7 +102,8 @@ class Board
     std::vector<Move> m_moveHistory;
     std::vector<std::string> m_moveHistoryStr;
 
-    std::shared_ptr<PositionSet> m_cachedValidPlacements = nullptr;
+    PositionSet m_cachedValidPlacements;
+    bool m_cachedValidPlacementsReady = false;
 };
 } // namespace MzingaCpp
 
