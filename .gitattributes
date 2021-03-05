@@ -18,6 +18,7 @@
 
 # Specific files
 CMakeLists.txt text eol=lf
+CMakeSettings.json text eol=crlf
 tasks.json text eol=lf
 .gitattributes text eol=lf
 .gitignore text eol=lf

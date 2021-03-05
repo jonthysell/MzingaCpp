@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "Constants.h"
@@ -67,6 +68,9 @@ class Board
 
     bool PlacingPieceInOrder(PieceName const &pieceName);
 
+    Position GetPosition(PieceName const &pieceName);
+    void SetPosition(PieceName const &pieceName, Position const& position);
+
     PieceName GetPieceAt(Position const &position);
     PieceName GetPieceOnTopAt(Position const &position);
     bool HasPieceAt(Position const &position);
@@ -93,6 +97,7 @@ class Board
     PieceName m_lastPieceMoved = PieceName::INVALID;
 
     Position m_piecePositions[(int)PieceName::NumPieceNames];
+    std::unordered_map<Position,PieceName,PositionHasher> m_piecePositionMap;
 
     std::vector<Move> m_moveHistory;
     std::vector<std::string> m_moveHistoryStr;

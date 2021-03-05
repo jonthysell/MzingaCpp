@@ -10,8 +10,8 @@ defaults:
     shell: pwsh
 
 jobs:
-  pr_build_and_test:
-    name: PR Build
+  pr_build_windows:
+    name: PR Windows Build
     runs-on: windows-latest
     strategy:
       matrix:
@@ -31,5 +31,32 @@ jobs:
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: Windows.${{ matrix.architecture }}.${{ matrix.configuration }}
+        name: MzingaCpp.Windows.${{ matrix.architecture }}.${{ matrix.configuration }}
         path: build/${{ matrix.configuration }}/*
+
+  pr_build_linux:
+    name: PR Linux Build
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        architecture: [x64]
+        configuration: [Debug]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Build
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ matrix.configuration }}/
+        cmake --build . --config ${{ matrix.configuration }}
+
+    - name: Tar Files
+      run: tar -C build/${{ matrix.configuration }} . -cvzf MzingaCpp.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}.tar.gz
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: MzingaCpp.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}
+        path: MzingaCpp.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}.tar.gz

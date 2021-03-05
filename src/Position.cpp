@@ -37,6 +37,21 @@ bool operator!=(Position const &lhs, Position const &rhs)
     return !(lhs == rhs);
 }
 
+bool operator<(Position const &lhs, Position const &rhs)
+{
+    if (lhs.Q != rhs.Q)
+    {
+        return lhs.Q < rhs.Q;
+    }
+
+    if (lhs.R != rhs.R)
+    {
+        return lhs.R < rhs.R;
+    }
+
+    return lhs.Stack < rhs.Stack;
+}
+
 size_t hash(Position const &pos)
 {
     size_t value = 17;

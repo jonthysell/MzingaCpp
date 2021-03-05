@@ -31,6 +31,7 @@ static const int NeighborDeltas[(int)Direction::NumDirections][3] = {
 
 bool operator==(Position const &lhs, Position const &rhs);
 bool operator!=(Position const &lhs, Position const &rhs);
+bool operator<(Position const &lhs, Position const &rhs);
 
 size_t hash(Position const &pos);
 } // namespace MzingaCpp
