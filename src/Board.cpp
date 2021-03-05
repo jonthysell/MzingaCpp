@@ -875,8 +875,8 @@ Position Board::GetPosition(PieceName const &pieceName)
 void Board::SetPosition(PieceName const &pieceName, Position const &position)
 {
     auto oldPosition = GetPosition(pieceName);
-    m_piecePositionMap.insert_or_assign(oldPosition, PieceName::INVALID);
-    m_piecePositionMap.insert_or_assign(position, pieceName);
+    m_piecePositionMap[oldPosition] = PieceName::INVALID;
+    m_piecePositionMap[position] = pieceName;
     m_piecePositions[(int)pieceName] = position;
 }
 
