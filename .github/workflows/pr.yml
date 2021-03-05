@@ -36,7 +36,7 @@ jobs:
 
   pr_build_linux:
     name: PR Linux Build
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         architecture: [x64]
