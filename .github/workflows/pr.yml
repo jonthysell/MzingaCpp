@@ -1,5 +1,8 @@
 name: PR Validation
 
+env:
+  Product: MzingaCpp
+
 on:
   pull_request:
     branches:
@@ -31,7 +34,7 @@ jobs:
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: MzingaCpp.Windows.${{ matrix.architecture }}.${{ matrix.configuration }}
+        name: ${{ env.Product }}.Windows.${{ matrix.architecture }}.${{ matrix.configuration }}
         path: build/${{ matrix.configuration }}/*
 
   pr_build_linux:
@@ -53,10 +56,10 @@ jobs:
         cmake --build . --config ${{ matrix.configuration }}
 
     - name: Tar Files
-      run: tar -C build/${{ matrix.configuration }} . -cvzf MzingaCpp.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}.tar.gz
+      run: tar -C build/${{ matrix.configuration }} . -cvzf ${{ env.Product }}.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}.tar.gz
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: MzingaCpp.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}
-        path: MzingaCpp.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}.tar.gz
+        name: ${{ env.Product }}.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}
+        path: ${{ env.Product }}.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}.tar.gz
