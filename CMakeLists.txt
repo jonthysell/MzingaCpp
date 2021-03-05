@@ -15,4 +15,4 @@ target_sources(mzingacpp PRIVATE
     src/Position.cpp
 )
 
-set_property(TARGET mzingacpp PROPERTY CXX_STANDARD 11)
+set_property(TARGET mzingacpp PROPERTY CXX_STANDARD 17)
