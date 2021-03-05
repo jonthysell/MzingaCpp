@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16.0)
 
-project(mzingacpp VERSION 0.9)
+project(mzingacpp VERSION 0.9.0)
 
 add_executable(mzingacpp)
 
