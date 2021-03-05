@@ -16,4 +16,4 @@ if (-Not (Test-Path ".\7za.exe")) {
 Set-Location -Path "$StartingLocation"
 
 Write-Host "Create package..."
-$env:TEMP\7za.exe a "$TargetOutputPackageName" "$TargetOutputDirectory" -tzip -mx9
+& "$env:TEMP\7za.exe" a "$TargetOutputPackageName" "$TargetOutputDirectory" -tzip -mx9

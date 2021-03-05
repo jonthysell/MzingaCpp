@@ -55,11 +55,11 @@ jobs:
 
     - name: Copy Docs
       run: |
-        xcopy README.md build\Release\ReadMe.txt
-        xcopy LICENSE.md build\Release\License.txt
+        copy /y README.md build\Release\ReadMe.txt
+        copy /y LICENSE.md build\Release\License.txt
 
     - name: Zip Files
-      run: scripts\ZipRelease.ps1 -TargetOutputPackageName ${{ env.Product }}.Windows.${{ matrix.architecture }}.zip -TargetOutputDirectory build/Release/*
+      run: .\scripts\ZipRelease.ps1 -TargetOutputPackageName ${{ env.Product }}.Windows.${{ matrix.architecture }}.zip -TargetOutputDirectory .\build\Release.*
 
     - name: Upload ${{ matrix.target }} Release Asset
       uses: actions/upload-release-asset@v1
