@@ -102,7 +102,6 @@ class Board
     std::vector<Move> m_moveHistory;
     std::vector<std::string> m_moveHistoryStr;
 
-    std::shared_ptr<MoveSet> m_cachedValidMoves = nullptr;
     std::shared_ptr<PositionSet> m_cachedValidPlacements = nullptr;
 };
 } // namespace MzingaCpp

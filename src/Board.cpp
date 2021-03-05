@@ -49,25 +49,22 @@ std::string Board::GetGameString()
 
 std::shared_ptr<MoveSet> Board::GetValidMoves()
 {
-    if (nullptr == m_cachedValidMoves)
+    auto validMoves = std::make_shared<MoveSet>();
+
+    if (GameInProgress(m_boardState))
     {
-        m_cachedValidMoves = std::make_shared<MoveSet>();
-
-        if (GameInProgress(m_boardState))
+        for (int pn = 0; pn < (int)PieceName::NumPieceNames; pn++)
         {
-            for (int pn = 0; pn < (int)PieceName::NumPieceNames; pn++)
-            {
-                GetValidMoves((PieceName)pn, m_cachedValidMoves);
-            }
+            GetValidMoves((PieceName)pn, validMoves);
+        }
 
-            if (m_cachedValidMoves->size() == 0)
-            {
-                m_cachedValidMoves->insert(PassMove);
-            }
+        if (validMoves->size() == 0)
+        {
+            validMoves->insert(PassMove);
         }
     }
 
-    return m_cachedValidMoves;
+    return validMoves;
 }
 
 bool Board::TryPlayMove(Move const &move, std::string moveString)
@@ -1069,5 +1066,5 @@ void Board::ResetState()
 void Board::ResetCaches()
 {
     m_cachedValidPlacements = nullptr;
-    m_cachedValidMoves = nullptr;
+    //m_cachedValidMoves = nullptr;
 }
