@@ -73,16 +73,17 @@ Color GetColor(PieceName const &value);
 enum class Direction
 {
     Up = 0,
-    UpRight,
-    DownRight,
-    Down,
-    DownLeft,
-    UpLeft,
-    NumDirections,
+    UpRight = 1,
+    DownRight = 2,
+    Down = 3,
+    DownLeft = 4,
+    UpLeft = 5,
+    NumDirections = 6,
+    Above = 6,
 };
 
-Direction LeftOf(Direction value);
-Direction RightOf(Direction value);
+Direction LeftOf(Direction const &value);
+Direction RightOf(Direction const &value);
 
 enum class BugType
 {

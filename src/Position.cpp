@@ -7,7 +7,8 @@ using namespace MzingaCpp;
 
 Position Position::GetNeighborAt(Direction const &direction) const
 {
-    return Position{Q + NeighborDeltas[(int)direction][0], R + NeighborDeltas[(int)direction][2], Stack};
+    return Position{Q + NeighborDeltas[(int)direction][0], R + NeighborDeltas[(int)direction][1],
+                    Stack + NeighborDeltas[(int)direction][2]};
 }
 
 Position Position::GetAbove() const

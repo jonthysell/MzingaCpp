@@ -19,6 +19,17 @@ Board::Board(GameType gameType) : m_gameType(gameType)
     {
         m_piecePositions[pn] = NullPosition;
     }
+
+    for (int q = 0; q < BoardSize; q++)
+    {
+        for (int r = 0; r < BoardSize; r++)
+        {
+            for (int stack = 0; stack < BoardStackSize; stack++)
+            {
+                m_pieceGrid[q][r][stack] = PieceName::INVALID;
+            }
+        }
+    }
 }
 
 BoardState Board::GetBoardState()
@@ -408,7 +419,7 @@ void Board::CalculateValidPlacements()
         }
         else
         {
-            PositionSet visitedPlacements;
+            m_positions.clear();
 
             for (int pn = (int)(m_currentColor == Color::White ? PieceName::wQ : PieceName::bQ);
                  pn < (int)(m_currentColor == Color::White ? PieceName::bQ : PieceName::NumPieceNames); pn++)
@@ -418,15 +429,15 @@ void Board::CalculateValidPlacements()
                 if (PieceIsOnTop(pieceName))
                 {
                     auto bottomPosition = GetPosition(pieceName).GetBottom();
-                    visitedPlacements.insert(bottomPosition);
+                    m_positions.insert(bottomPosition);
 
                     for (int dir = 0; dir < (int)Direction::NumDirections; dir++)
                     {
                         auto neighbor = bottomPosition.GetNeighborAt((Direction)dir);
 
-                        if (visitedPlacements.find(neighbor) == visitedPlacements.end() && !HasPieceAt(neighbor))
+                        if (m_positions.find(neighbor) == m_positions.end() && !HasPieceAt(neighbor))
                         {
-                            visitedPlacements.insert(neighbor);
+                            m_positions.insert(neighbor);
 
                             // Neighboring position is a potential, verify its neighbors are empty or same color
 
@@ -684,8 +695,7 @@ void Board::GetValidPillbugSpecialMoves(PieceName const &pieceName, std::shared_
         auto neighborPieceName = GetPieceAt(neighborPosition);
 
         if (neighborPieceName != PieceName::INVALID && neighborPieceName != m_lastPieceMoved &&
-            GetPieceAt(neighborPosition.GetAbove()) == PieceName::INVALID &&
-            CanMoveWithoutBreakingHive(neighborPieceName))
+            !HasPieceAt(neighborPosition, Direction::Above) && CanMoveWithoutBreakingHive(neighborPieceName))
         {
             // Piece can be moved
             auto firstMove = Move{neighborPieceName, neighborPosition, positionAboveTargetPiece};
@@ -718,17 +728,17 @@ void Board::GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> 
 {
     auto startingPosition = GetPosition(pieceName);
 
-    auto visitedPositions = std::make_shared<PositionSet>();
-    visitedPositions->insert(startingPosition);
+    m_positions.clear();
+    m_positions.insert(startingPosition);
 
     SetPosition(pieceName, NullPosition);
-    GetValidSlides(pieceName, moveSet, startingPosition, startingPosition, visitedPositions, 0, maxRange);
+    GetValidSlides(pieceName, moveSet, startingPosition, startingPosition, 0, maxRange);
     SetPosition(pieceName, startingPosition);
 }
 
 void Board::GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet,
-                           Position const &startingPosition, Position const &currentPosition,
-                           std::shared_ptr<PositionSet> visitedPositions, int currentRange, int maxRange)
+                           Position const &startingPosition, Position const &currentPosition, int currentRange,
+                           int maxRange)
 {
     if (maxRange < 0 || currentRange < maxRange)
     {
@@ -736,14 +746,14 @@ void Board::GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> 
         {
             auto slidePosition = currentPosition.GetNeighborAt((Direction)slideDirection);
 
-            if (visitedPositions->find(slidePosition) == visitedPositions->end() && !HasPieceAt(slidePosition))
+            if (m_positions.find(slidePosition) == m_positions.end() && !HasPieceAt(slidePosition))
             {
                 // Slide position is open
 
                 auto left = LeftOf((Direction)slideDirection);
                 auto right = RightOf((Direction)slideDirection);
 
-                if (HasPieceAt(currentPosition.GetNeighborAt(right)) != HasPieceAt(currentPosition.GetNeighborAt(left)))
+                if (HasPieceAt(currentPosition, right) != HasPieceAt(currentPosition, left))
                 {
                     // Can slide into slide position
                     auto move = Move{pieceName, startingPosition, slidePosition};
@@ -751,9 +761,8 @@ void Board::GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> 
                     if (moveSet->find(move) == moveSet->end())
                     {
                         moveSet->insert(move);
-                        visitedPositions->insert(slidePosition);
-                        GetValidSlides(pieceName, moveSet, startingPosition, slidePosition, visitedPositions,
-                                       currentRange + 1, maxRange);
+                        m_positions.insert(slidePosition);
+                        GetValidSlides(pieceName, moveSet, startingPosition, slidePosition, currentRange + 1, maxRange);
                     }
                 }
             }
@@ -791,7 +800,7 @@ bool Board::CanSlideToPositionInExactRange(PieceName const &pieceName, Position 
                 auto right = RightOf((Direction)slideDirection);
                 auto left = LeftOf((Direction)slideDirection);
 
-                if (HasPieceAt(currentPosition.GetNeighborAt(right)) != HasPieceAt(currentPosition.GetNeighborAt(left)))
+                if (HasPieceAt(currentPosition, right) != HasPieceAt(currentPosition, left))
                 {
                     // Can slide into slide position
 
@@ -864,56 +873,65 @@ bool Board::PlacingPieceInOrder(PieceName const &pieceName)
     return true;
 }
 
-Position Board::GetPosition(PieceName const &pieceName)
+inline Position Board::GetPosition(PieceName const &pieceName)
 {
     return m_piecePositions[(int)pieceName];
 }
 
-void Board::SetPosition(PieceName const &pieceName, Position const &position)
+inline void Board::SetPosition(PieceName const &pieceName, Position const &position)
 {
     auto oldPosition = GetPosition(pieceName);
-    m_piecePositionMap[oldPosition] = PieceName::INVALID;
-    m_piecePositionMap[position] = pieceName;
     m_piecePositions[(int)pieceName] = position;
+
+    if (oldPosition.Stack >= 0)
+    {
+        m_pieceGrid[(BoardSize / 2) + oldPosition.Q][(BoardSize / 2) + oldPosition.R][oldPosition.Stack] =
+            PieceName::INVALID;
+    }
+    if (position.Stack >= 0)
+    {
+        m_pieceGrid[(BoardSize / 2) + position.Q][(BoardSize / 2) + position.R][position.Stack] = pieceName;
+    }
 }
 
-PieceName Board::GetPieceAt(Position const &position)
+inline PieceName Board::GetPieceAt(Position const &position)
 {
-    auto it = m_piecePositionMap.find(position);
-    if (it != m_piecePositionMap.end())
-    {
-        return (PieceName)it->second;
-    }
+    assert(position.Stack >= 0);
+    return m_pieceGrid[(BoardSize / 2) + position.Q][(BoardSize / 2) + position.R][position.Stack];
+}
 
-    return PieceName::INVALID;
+PieceName Board::GetPieceAt(Position const &position, Direction const &direction)
+{
+    assert(position.Stack >= 0);
+    return m_pieceGrid[(BoardSize / 2) + position.Q + NeighborDeltas[(int)direction][0]]
+                      [(BoardSize / 2) + position.R + NeighborDeltas[(int)direction][1]]
+                      [position.Stack + NeighborDeltas[(int)direction][2]];
 }
 
 PieceName Board::GetPieceOnTopAt(Position const &position)
 {
-    auto currentPosition = position.GetBottom();
-
-    auto topPiece = GetPieceAt(currentPosition);
-
-    if (topPiece != PieceName::INVALID)
+    auto topPieceName = PieceName::INVALID;
+    for (int stack = 0; stack < BoardStackSize; stack++)
     {
-        while (true)
+        auto pieceName = m_pieceGrid[(BoardSize / 2) + position.Q][(BoardSize / 2) + position.R][stack];
+        if (pieceName == PieceName::INVALID)
         {
-            currentPosition = currentPosition.GetAbove();
-            auto nextPiece = GetPieceAt(currentPosition);
-            if (nextPiece == PieceName::INVALID)
-            {
-                break;
-            }
-            topPiece = nextPiece;
+            break;
         }
+        topPieceName = pieceName;
     }
 
-    return topPiece;
+    return topPieceName;
 }
 
 bool Board::HasPieceAt(Position const &position)
 {
     return GetPieceAt(position) != PieceName::INVALID;
+}
+
+bool Board::HasPieceAt(Position const &position, Direction const &direction)
+{
+    return GetPieceAt(position, direction) != PieceName::INVALID;
 }
 
 inline bool Board::PieceInHand(PieceName const &pieceName)
@@ -932,7 +950,7 @@ inline bool Board::PieceInPlay(PieceName const &pieceName)
 
 bool Board::PieceIsOnTop(PieceName const &pieceName)
 {
-    return PieceInPlay(pieceName) && !HasPieceAt(GetPosition(pieceName).GetAbove());
+    return PieceInPlay(pieceName) && !HasPieceAt(GetPosition(pieceName), Direction::Above);
 }
 
 bool Board::CanMoveWithoutBreakingHive(PieceName const &pieceName)
@@ -997,8 +1015,7 @@ bool Board::IsOneHive()
             // Check all pieces at this stack level
             for (int dir = 0; dir < (int)Direction::NumDirections; dir++)
             {
-                auto neighbor = currentPosition.GetNeighborAt((Direction)dir);
-                auto neighborPiece = GetPieceAt(neighbor);
+                auto neighborPiece = GetPieceAt(currentPosition, (Direction)dir);
                 if (neighborPiece != PieceName::INVALID && !partOfHive[(int)neighborPiece])
                 {
                     piecesToLookAt.push(neighborPiece);
@@ -1008,12 +1025,12 @@ bool Board::IsOneHive()
             }
 
             // Check for all pieces above this one
-            auto pieceAbove = GetPieceAt(currentPosition.GetAbove());
+            auto pieceAbove = GetPieceAt(currentPosition, Direction::Above);
             while (PieceName::INVALID != pieceAbove)
             {
                 partOfHive[(int)pieceAbove] = true;
                 piecesVisited++;
-                pieceAbove = GetPieceAt(GetPosition(pieceAbove).GetAbove());
+                pieceAbove = GetPieceAt(GetPosition(pieceAbove), Direction::Above);
             }
         }
     }
@@ -1024,11 +1041,12 @@ bool Board::IsOneHive()
 int Board::CountNeighbors(PieceName const &pieceName)
 {
     int count = 0;
-    if (PieceInPlay(pieceName))
+    auto position = GetPosition(pieceName);
+    if (position.Stack >= 0)
     {
         for (int dir = 0; dir < (int)Direction::NumDirections; dir++)
         {
-            auto neighbor = GetPieceAt(GetPosition(pieceName).GetNeighborAt((Direction)dir));
+            auto neighbor = GetPieceAt(position, (Direction)dir);
             if (neighbor != PieceName::INVALID)
             {
                 count++;

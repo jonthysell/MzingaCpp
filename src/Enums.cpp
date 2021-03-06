@@ -216,12 +216,12 @@ Color GetColor(PieceName const &value)
     return Color::NumColors;
 }
 
-Direction LeftOf(Direction value)
+Direction LeftOf(Direction const &value)
 {
     return (Direction)(((int)value + (int)Direction::NumDirections - 1) % (int)Direction::NumDirections);
 }
 
-Direction RightOf(Direction value)
+Direction RightOf(Direction const &value)
 {
     return (Direction)(((int)value + 1) % (int)Direction::NumDirections);
 }

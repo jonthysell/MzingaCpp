@@ -6,7 +6,6 @@
 
 #include <memory>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "Constants.h"
@@ -56,8 +55,7 @@ class Board
 
     void GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet, int maxRange);
     void GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet, Position const &startingPosition,
-                        Position const &currentPosition, std::shared_ptr<PositionSet> visitedPositions,
-                        int currentRange, int maxRange);
+                        Position const &currentPosition, int currentRange, int maxRange);
 
     bool CanSlideToPositionInExactRange(PieceName const &pieceName, Position const &targetPosition, int targetRange);
     bool CanSlideToPositionInExactRange(PieceName const &pieceName, Position const &targetPosition,
@@ -69,11 +67,13 @@ class Board
     bool PlacingPieceInOrder(PieceName const &pieceName);
 
     Position GetPosition(PieceName const &pieceName);
-    void SetPosition(PieceName const &pieceName, Position const& position);
+    void SetPosition(PieceName const &pieceName, Position const &position);
 
     PieceName GetPieceAt(Position const &position);
+    PieceName GetPieceAt(Position const &position, Direction const &direction);
     PieceName GetPieceOnTopAt(Position const &position);
     bool HasPieceAt(Position const &position);
+    bool HasPieceAt(Position const &position, Direction const &direction);
 
     bool PieceInHand(PieceName const &pieceName);
     bool PieceInPlay(PieceName const &pieceName);
@@ -97,13 +97,15 @@ class Board
     PieceName m_lastPieceMoved = PieceName::INVALID;
 
     Position m_piecePositions[(int)PieceName::NumPieceNames];
-    std::unordered_map<Position,PieceName,PositionHasher> m_piecePositionMap;
+    PieceName m_pieceGrid[BoardSize][BoardSize][BoardStackSize];
 
     std::vector<Move> m_moveHistory;
     std::vector<std::string> m_moveHistoryStr;
 
     PositionSet m_cachedValidPlacements;
     bool m_cachedValidPlacementsReady = false;
+
+    PositionSet m_positions;
 };
 } // namespace MzingaCpp
 
