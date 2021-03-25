@@ -1,6 +1,6 @@
 # MzingaCpp ChangeLog #
 
-## next ##
+## v0.9.1 ##
 
 * Fixed a bug with generating the correct move notation
 
