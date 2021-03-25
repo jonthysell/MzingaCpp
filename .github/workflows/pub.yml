@@ -55,8 +55,8 @@ jobs:
 
     - name: Copy Docs
       run: |
-        copy /y README.md build\Release\ReadMe.txt
-        copy /y LICENSE.md build\Release\License.txt
+        Copy-Item -Path README.md -Destination build\Release\ReadMe.txt -Force
+        Copy-Item -Path LICENSE.md -Destination build\Release\License.txt -Force
 
     - name: Zip Files
       run: .\scripts\ZipRelease.ps1 -TargetOutputPackageName ${{ env.Product }}.Windows.${{ matrix.architecture }}.zip -TargetOutputDirectory .\build\Release.*
@@ -103,6 +103,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.pub_create_github_release.outputs.upload_url }}
-        asset_path: ${{ env.Product }}.Linux.${{ matrix.architecture }}.Release.tar.gz
-        asset_name: ${{ env.Product }}.Linux.${{ matrix.architecture }}.Release.tar.gz
+        asset_path: ${{ env.Product }}.Linux.${{ matrix.architecture }}.tar.gz
+        asset_name: ${{ env.Product }}.Linux.${{ matrix.architecture }}.tar.gz
         asset_content_type: application/gzip
