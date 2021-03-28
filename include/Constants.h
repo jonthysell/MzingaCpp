@@ -35,7 +35,7 @@ constexpr const char *ErrorMessage_Unknown = "An unknown error has occured.";
 constexpr const char *InvalidMoveString = "invalidmove";
 constexpr const char *InvalidMoveMessage_Generic = "Unable to play that move at this time.";
 
-constexpr const char *PassMoveString = "PASS";
+constexpr const char *PassMoveString = "pass";
 
 constexpr const int BoardSize = 128;
 constexpr const int BoardStackSize = 6;

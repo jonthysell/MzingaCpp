@@ -1,5 +1,9 @@
 # MzingaCpp ChangeLog #
 
+## next ##
+
+* Fixed bug with pass string
+
 ## v0.9.2 ##
 
 * Fixed bug with the stack size being too small
