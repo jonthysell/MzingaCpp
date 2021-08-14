@@ -159,6 +159,10 @@ bool TryNormalizeMoveString(std::string const &moveString, bool &isPass, PieceNa
     if (strcmp(piece1Str.c_str(), PassMoveString) == 0)
     {
         isPass = true;
+        startPiece = PieceName::INVALID;
+        beforeSeperator = '\0';
+        endPiece = PieceName::INVALID;
+        afterSeperator = '\0';
         return true;
     }
 
@@ -169,17 +173,11 @@ bool TryNormalizeMoveString(std::string const &moveString, bool &isPass, PieceNa
         std::string piece2Str = piece2.str();
         endPiece = GetPieceNameValue(piece2Str.c_str());
 
-        if (endPiece == PieceName::INVALID)
+        if ((strcmp(piece2Str.c_str(), "") == 0 && beforeSeperator == '\0' && afterSeperator == '\0')
+            || endPiece != PieceName::INVALID)
         {
-            beforeSeperator = '\0';
-            afterSeperator = '\0';
+            return true;
         }
-        else if (beforeSeperator != '\0')
-        {
-            afterSeperator = '\0';
-        }
-
-        return true;
     }
 
     isPass = false;
