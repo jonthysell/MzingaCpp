@@ -1,6 +1,6 @@
 # MzingaCpp ChangeLog #
 
-## next ##
+## v0.9.4 ##
 
 * Fixed issue with parsing move strings containing INVALID
 * Raised board stack size to accommodate Mosquitos
