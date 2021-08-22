@@ -38,7 +38,7 @@ constexpr const char *InvalidMoveMessage_Generic = "Unable to play that move at 
 constexpr const char *PassMoveString = "pass";
 
 constexpr const int BoardSize = 128;
-constexpr const int BoardStackSize = 6;
+constexpr const int BoardStackSize = 8;
 
 } // namespace MzingaCpp
 

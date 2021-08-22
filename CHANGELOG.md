@@ -2,6 +2,11 @@
 
 ## next ##
 
+* Fixed issue with parsing move strings containing INVALID
+* Raised board stack size to accommodate Mosquitos
+
+## v0.9.3 ##
+
 * Fixed bug with pass string
 
 ## v0.9.2 ##
