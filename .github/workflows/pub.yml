@@ -37,7 +37,7 @@ jobs:
 
   pub_build_windows:
     name: Publish Windows Build
-    runs-on: windows-latest
+    runs-on: windows-2022
     needs: pub_create_github_release
     strategy:
       matrix:
@@ -50,7 +50,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} ..
+        cmake -G "Visual Studio 17 2022" -A ${{ matrix.architecture }} ..
         cmake --build . --config Release
 
     - name: Copy Docs
