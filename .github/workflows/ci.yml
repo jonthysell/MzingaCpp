@@ -15,7 +15,7 @@ defaults:
 jobs:
   ci_build_windows:
     name: CI Windows Build
-    runs-on: windows-latest
+    runs-on: windows-2022
     strategy:
       matrix:
         architecture: [Win32, x64]
@@ -28,7 +28,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} ..
+        cmake -G "Visual Studio 17 2022" -A ${{ matrix.architecture }} ..
         cmake --build . --config ${{ matrix.configuration }}
 
     - name: Upload Build Artifacts

@@ -10,7 +10,9 @@ It implements the base game and the three official expansions.
 
 This project requires CMake >= 3.16 and a standard C++ build environment.
 
-### Windows (VS 2019) ###
+### Windows (VS 2019, 2022) ###
+
+Open VS Command Prompt, then run one of the following:
 
 * Build Debug: `.\scripts\build-debug.cmd`
 * Build Release: `.\scripts\build-release.cmd`
@@ -33,6 +35,6 @@ cmake --build .
 
 MzingaCpp is open-source under the MIT license.
 
-Copyright (c) 2020-2021 Jon Thysell.
+Copyright (c) 2020-2022 Jon Thysell.
 
 Hive Copyright (c) 2016 Gen42 Games. This repo is in no way associated with or endorsed by Gen42 Games.
