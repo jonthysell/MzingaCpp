@@ -37,7 +37,7 @@ jobs:
 
   pub_build_windows:
     name: Publish Windows Build
-    runs-on: windows-2022
+    runs-on: windows-latest
     needs: pub_create_github_release
     strategy:
       matrix:

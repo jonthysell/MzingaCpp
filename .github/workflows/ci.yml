@@ -15,7 +15,7 @@ defaults:
 jobs:
   ci_build_windows:
     name: CI Windows Build
-    runs-on: windows-2022
+    runs-on: windows-latest
     strategy:
       matrix:
         architecture: [Win32, x64]

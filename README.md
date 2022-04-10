@@ -10,7 +10,7 @@ It implements the base game and the three official expansions.
 
 This project requires CMake >= 3.16 and a standard C++ build environment.
 
-### Windows (VS 2019, 2022) ###
+### Windows (VS) ###
 
 Open VS Command Prompt, then run one of the following:
 
