@@ -1,5 +1,9 @@
 # MzingaCpp ChangeLog #
 
+## v0.9.5 ##
+
+* Fix spider move generation
+
 ## v0.9.4 ##
 
 * Fixed issue with parsing move strings containing INVALID
