@@ -1,6 +1,6 @@
-# MzingaCpp ChangeLog #
+# MzingaCpp Changelog #
 
-## next ##
+## v0.9.6 ##
 
 * Improved perf and readability of getting slide moves
 
