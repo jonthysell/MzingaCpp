@@ -1,5 +1,9 @@
 # MzingaCpp ChangeLog #
 
+## next ##
+
+* Improved perf and readability of getting slide moves
+
 ## v0.9.5 ##
 
 * Fix spider move generation

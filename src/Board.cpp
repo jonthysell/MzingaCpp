@@ -476,17 +476,7 @@ void Board::GetValidQueenBeeMoves(PieceName const &pieceName, std::shared_ptr<Mo
 
 void Board::GetValidSpiderMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet)
 {
-    // Get all slides up to 3 spots away
-    auto upToThree = std::make_shared<MoveSet>();
-    GetValidSlides(pieceName, upToThree, 3);
-
-    for (auto const &move : *upToThree)
-    {
-        if (CanSlideToPositionInExactRange(pieceName, move.Destination, 3))
-        {
-            moveSet->insert(move);
-        }
-    }
+    GetValidSlides(pieceName, moveSet, 3);
 }
 
 void Board::GetValidBeetleMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet)
@@ -562,7 +552,7 @@ void Board::GetValidGrasshopperMoves(PieceName const &pieceName, std::shared_ptr
 
 void Board::GetValidSoldierAntMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet)
 {
-    GetValidSlides(pieceName, moveSet, -1);
+    GetValidSlides(pieceName, moveSet, 0);
 }
 
 void Board::GetValidMosquitoMoves(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet,
@@ -726,112 +716,79 @@ void Board::GetValidPillbugSpecialMoves(PieceName const &pieceName, std::shared_
     }
 }
 
-void Board::GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet, int maxRange)
+void Board::GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet, int fixedRange)
 {
     auto startingPosition = GetPosition(pieceName);
-
-    m_positions.clear();
-    m_positions.insert(startingPosition);
-
     SetPosition(pieceName, NullPosition);
-    GetValidSlides(pieceName, moveSet, startingPosition, startingPosition, 0, maxRange);
+
+    if (fixedRange > 0)
+    {
+        GetValidSlides(pieceName, moveSet, startingPosition, startingPosition, startingPosition, fixedRange);
+    }
+    else
+    {
+        GetValidSlides(pieceName, moveSet, startingPosition, startingPosition, startingPosition);
+    }
+
     SetPosition(pieceName, startingPosition);
 }
 
 void Board::GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet,
-                           Position const &startingPosition, Position const &currentPosition, int currentRange,
-                           int maxRange)
+                           Position const &startingPosition, Position const &lastPosition,
+                           Position const &currentPosition)
 {
-    auto unlimitedRange = maxRange < 0;
-    if (unlimitedRange || currentRange < maxRange)
+    for (int slideDirection = 0; slideDirection < (int)Direction::NumDirections; slideDirection++)
     {
-        for (int slideDirection = 0; slideDirection < (int)Direction::NumDirections; slideDirection++)
+        auto const &slidePosition = currentPosition.GetNeighborAt((Direction)slideDirection);
+        if (slidePosition != lastPosition && slidePosition != startingPosition && !HasPieceAt(slidePosition))
         {
-            auto slidePosition = currentPosition.GetNeighborAt((Direction)slideDirection);
-
-            if (m_positions.find(slidePosition) == m_positions.end() && !HasPieceAt(slidePosition))
+            // Slide position is open
+            if (HasPieceAt(currentPosition.GetNeighborAt(RightOf((Direction)slideDirection))) !=
+                HasPieceAt(currentPosition.GetNeighborAt(LeftOf((Direction)slideDirection))))
             {
-                // Slide position is open
+                // Can slide into slide position
+                auto move = Move{pieceName, startingPosition, slidePosition};
 
-                auto left = LeftOf((Direction)slideDirection);
-                auto right = RightOf((Direction)slideDirection);
-
-                if (HasPieceAt(currentPosition, right) != HasPieceAt(currentPosition, left))
+                if (moveSet->find(move) == moveSet->end())
                 {
-                    // Can slide into slide position
-                    auto move = Move{pieceName, startingPosition, slidePosition};
-
-                    if (unlimitedRange)
-                    {
-                        m_positions.insert(slidePosition);
-                    }
-
-                    auto moveAdded = false;
-                    if (moveSet->find(move) == moveSet->end())
-                    {
-                        moveSet->insert(move);
-                        moveAdded = true;
-                    }
-
-                    if (moveAdded || (!moveAdded && !unlimitedRange))
-                    {
-                        GetValidSlides(pieceName, moveSet, startingPosition, slidePosition, currentRange + 1, maxRange);
-                    }
+                    moveSet->insert(move);
+                    GetValidSlides(pieceName, moveSet, startingPosition, currentPosition, slidePosition);
                 }
             }
         }
     }
 }
 
-bool Board::CanSlideToPositionInExactRange(PieceName const &pieceName, Position const &targetPosition, int targetRange)
+void Board::GetValidSlides(PieceName const &pieceName, std::shared_ptr<MoveSet> moveSet,
+                           Position const &startingPosition, Position const &lastPosition,
+                           Position const &currentPosition, int remainingSlides)
 {
-    auto startingPosition = GetPosition(pieceName);
-
-    SetPosition(pieceName, NullPosition);
-    auto result =
-        CanSlideToPositionInExactRange(pieceName, targetPosition, NullPosition, startingPosition, 0, targetRange);
-    SetPosition(pieceName, startingPosition);
-
-    return result;
-}
-
-bool Board::CanSlideToPositionInExactRange(PieceName const &pieceName, Position const &targetPosition,
-                                           Position const &lastPosition, Position const &currentPosition,
-                                           int currentRange, int targetRange)
-{
-    bool result = false;
-    if (currentRange < targetRange)
+    if (remainingSlides == 0)
+    {
+        auto move = Move{pieceName, startingPosition, currentPosition};
+        if (moveSet->find(move) == moveSet->end())
+        {
+            moveSet->insert(move);
+        }
+    }
+    else
     {
         for (int slideDirection = 0; slideDirection < (int)Direction::NumDirections; slideDirection++)
         {
-            Position slidePosition = currentPosition.GetNeighborAt((Direction)slideDirection);
-
-            if (slidePosition != lastPosition && !HasPieceAt(slidePosition))
+            auto const &slidePosition = currentPosition.GetNeighborAt((Direction)slideDirection);
+            if (slidePosition != lastPosition && slidePosition != startingPosition && !HasPieceAt(slidePosition))
             {
                 // Slide position is open
-
-                auto right = RightOf((Direction)slideDirection);
-                auto left = LeftOf((Direction)slideDirection);
-
-                if (HasPieceAt(currentPosition, right) != HasPieceAt(currentPosition, left))
+                if (HasPieceAt(currentPosition.GetNeighborAt(RightOf((Direction)slideDirection))) !=
+                    HasPieceAt(currentPosition.GetNeighborAt(LeftOf((Direction)slideDirection))))
                 {
                     // Can slide into slide position
-
-                    if (targetPosition == slidePosition && currentRange + 1 == targetRange)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        result = result || CanSlideToPositionInExactRange(pieceName, targetPosition, currentPosition,
-                                                                          slidePosition, currentRange + 1, targetRange);
-                    }
+                    GetValidSlides(pieceName, moveSet, startingPosition, currentPosition, slidePosition,
+                                   remainingSlides - 1);
                 }
             }
         }
     }
-
-    return result;
 }
 
 void Board::TrustedPlay(Move const &move)
