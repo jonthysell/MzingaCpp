@@ -8,17 +8,13 @@ on:
     branches:
       - main
 
-defaults:
-  run:
-    shell: pwsh
-
 jobs:
   pr_build_windows:
     name: PR Windows Build
     runs-on: windows-latest
     strategy:
       matrix:
-        architecture: [Win32]
+        architecture: [x86, x64]
         configuration: [Debug]
     steps:
     - name: Checkout
@@ -28,9 +24,9 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -G "Visual Studio 17 2022" -A ${{ matrix.architecture }} ..
+        cmake -G "Visual Studio 17 2022" -A $(If ('${{ matrix.architecture }}' -eq 'x86') { 'Win32' } Else { '${{ matrix.architecture }}' } ) ..
         cmake --build . --config ${{ matrix.configuration }}
-
+    
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2
       with:
@@ -56,10 +52,37 @@ jobs:
         cmake --build . --config ${{ matrix.configuration }}
 
     - name: Tar Files
-      run: tar -C build/${{ matrix.configuration }} . -cvzf ${{ env.Product }}.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}.tar.gz
+      run: tar -cvzf ${{ env.Product }}.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}.tar.gz -C build/${{ matrix.configuration }} .
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.Product }}.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}
         path: ${{ env.Product }}.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}.tar.gz
+
+  pr_build_macos:
+    name: PR MacOS Build
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        architecture: [x64]
+        configuration: [Debug]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Build
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ matrix.configuration }}/
+        cmake --build . --config ${{ matrix.configuration }}
+
+    - name: Tar Files
+      run: tar -cvzf ${{ env.Product }}.MacOS.${{ matrix.architecture }}.${{ matrix.configuration }}.tar.gz -C build/${{ matrix.configuration }} .
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.Product }}.MacOS.${{ matrix.architecture }}.${{ matrix.configuration }}
+        path: ${{ env.Product }}.MacOS.${{ matrix.architecture }}.${{ matrix.configuration }}.tar.gz

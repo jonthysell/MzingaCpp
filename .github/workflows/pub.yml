@@ -9,10 +9,6 @@ on:
     tags:
     - 'v*'
 
-defaults:
-  run:
-    shell: pwsh
-
 jobs:
   pub_create_github_release:
     name: Create Release
@@ -41,7 +37,7 @@ jobs:
     needs: pub_create_github_release
     strategy:
       matrix:
-        architecture: [Win32, x64]
+        architecture: [x86, x64]
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -50,7 +46,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -G "Visual Studio 17 2022" -A ${{ matrix.architecture }} ..
+        cmake -G "Visual Studio 17 2022" -A $(If ('${{ matrix.architecture }}' -eq 'x86') { 'Win32' } Else { '${{ matrix.architecture }}' } ) ..
         cmake --build . --config Release
 
     - name: Copy Docs
@@ -95,7 +91,7 @@ jobs:
         cp LICENSE.md build/Release/License.txt
     
     - name: Tar Files
-      run: tar -C build/Release . -cvzf ${{ env.Product }}.Linux.${{ matrix.architecture }}.tar.gz
+      run: tar -cvzf ${{ env.Product }}.Linux.${{ matrix.architecture }}.tar.gz -C build/Release .
 
     - name: Upload ${{ matrix.target }} Release Asset
       uses: actions/upload-release-asset@v1
@@ -105,4 +101,40 @@ jobs:
         upload_url: ${{ needs.pub_create_github_release.outputs.upload_url }}
         asset_path: ${{ env.Product }}.Linux.${{ matrix.architecture }}.tar.gz
         asset_name: ${{ env.Product }}.Linux.${{ matrix.architecture }}.tar.gz
+        asset_content_type: application/gzip
+
+  pub_build_linux:
+    name: Publish MacOS Build
+    runs-on: macOS-latest
+    needs: pub_create_github_release
+    strategy:
+      matrix:
+        architecture: [x64]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Build
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=Release/
+        cmake --build . --config Release
+
+    - name: Copy Docs
+      run: |
+        cp README.md build/Release/ReadMe.txt
+        cp LICENSE.md build/Release/License.txt
+    
+    - name: Tar Files
+      run: tar -cvzf ${{ env.Product }}.Linux.${{ matrix.architecture }}.tar.gz -C build/Release .
+
+    - name: Upload ${{ matrix.target }} Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.pub_create_github_release.outputs.upload_url }}
+        asset_path: ${{ env.Product }}.MacOS.${{ matrix.architecture }}.tar.gz
+        asset_name: ${{ env.Product }}.MacOS.${{ matrix.architecture }}.tar.gz
         asset_content_type: application/gzip
