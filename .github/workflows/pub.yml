@@ -127,7 +127,7 @@ jobs:
         cp LICENSE.md build/Release/License.txt
     
     - name: Tar Files
-      run: tar -cvzf ${{ env.Product }}.Linux.${{ matrix.architecture }}.tar.gz -C build/Release .
+      run: tar -cvzf ${{ env.Product }}.MacOS.${{ matrix.architecture }}.tar.gz -C build/Release .
 
     - name: Upload ${{ matrix.target }} Release Asset
       uses: actions/upload-release-asset@v1

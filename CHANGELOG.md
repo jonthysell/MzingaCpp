@@ -1,5 +1,9 @@
 # MzingaCpp Changelog #
 
+## v0.9.7 ##
+
+* Added MacOS builds
+
 ## v0.9.6 ##
 
 * Improved perf and readability of getting slide moves
