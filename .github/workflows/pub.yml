@@ -103,7 +103,7 @@ jobs:
         asset_name: ${{ env.Product }}.Linux.${{ matrix.architecture }}.tar.gz
         asset_content_type: application/gzip
 
-  pub_build_linux:
+  pub_build_macos:
     name: Publish MacOS Build
     runs-on: macOS-latest
     needs: pub_create_github_release
