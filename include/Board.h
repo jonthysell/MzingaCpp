@@ -101,8 +101,6 @@ class Board
 
     PositionSet m_cachedValidPlacements;
     bool m_cachedValidPlacementsReady = false;
-
-    PositionSet m_positions;
 };
 } // namespace MzingaCpp
 

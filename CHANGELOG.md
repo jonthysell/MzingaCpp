@@ -1,5 +1,9 @@
 # MzingaCpp Changelog #
 
+## next ##
+
+* Optimized finding placements by removing position cache
+
 ## v0.9.7 ##
 
 * Added MacOS builds

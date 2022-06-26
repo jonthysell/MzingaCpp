@@ -421,8 +421,6 @@ void Board::CalculateValidPlacements()
         }
         else
         {
-            m_positions.clear();
-
             for (int pn = (int)(m_currentColor == Color::White ? PieceName::wQ : PieceName::bQ);
                  pn < (int)(m_currentColor == Color::White ? PieceName::bQ : PieceName::NumPieceNames); pn++)
             {
@@ -431,16 +429,13 @@ void Board::CalculateValidPlacements()
                 if (PieceIsOnTop(pieceName))
                 {
                     auto bottomPosition = GetPosition(pieceName).GetBottom();
-                    m_positions.insert(bottomPosition);
 
                     for (int dir = 0; dir < (int)Direction::NumDirections; dir++)
                     {
                         auto neighbor = bottomPosition.GetNeighborAt((Direction)dir);
 
-                        if (m_positions.find(neighbor) == m_positions.end() && !HasPieceAt(neighbor))
+                        if (!HasPieceAt(neighbor))
                         {
-                            m_positions.insert(neighbor);
-
                             // Neighboring position is a potential, verify its neighbors are empty or same color
 
                             bool validPlacement = true;
