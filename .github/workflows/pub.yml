@@ -55,7 +55,7 @@ jobs:
         Copy-Item -Path LICENSE.md -Destination build\Release\License.txt -Force
 
     - name: Zip Files
-      run: .\scripts\ZipRelease.ps1 -TargetOutputPackageName ${{ env.Product }}.Windows.${{ matrix.architecture }}.zip -TargetOutputDirectory .\build\Release\*
+      run: .\scripts\ZipRelease.ps1 -TargetOutputPackageName ${{ env.Product }}.Windows.${{ matrix.architecture }}.Binaries.zip -TargetOutputDirectory .\build\Release\*
 
     - name: Upload ${{ matrix.target }} Release Asset
       uses: actions/upload-release-asset@v1
@@ -63,8 +63,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.pub_create_github_release.outputs.upload_url }}
-        asset_path: ${{ env.Product }}.Windows.${{ matrix.architecture }}.zip
-        asset_name: ${{ env.Product }}.Windows.${{ matrix.architecture }}.zip
+        asset_path: ${{ env.Product }}.Windows.${{ matrix.architecture }}.Binaries.zip
+        asset_name: ${{ env.Product }}.Windows.${{ matrix.architecture }}.Binaries.zip
         asset_content_type: application/zip
 
   pub_build_linux:
@@ -91,7 +91,7 @@ jobs:
         cp LICENSE.md build/Release/License.txt
     
     - name: Tar Files
-      run: tar -cvzf ${{ env.Product }}.Linux.${{ matrix.architecture }}.tar.gz -C build/Release .
+      run: tar -cvzf ${{ env.Product }}.Linux.${{ matrix.architecture }}.Binaries.tar.gz -C build/Release .
 
     - name: Upload ${{ matrix.target }} Release Asset
       uses: actions/upload-release-asset@v1
@@ -99,8 +99,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.pub_create_github_release.outputs.upload_url }}
-        asset_path: ${{ env.Product }}.Linux.${{ matrix.architecture }}.tar.gz
-        asset_name: ${{ env.Product }}.Linux.${{ matrix.architecture }}.tar.gz
+        asset_path: ${{ env.Product }}.Linux.${{ matrix.architecture }}.Binaries.tar.gz
+        asset_name: ${{ env.Product }}.Linux.${{ matrix.architecture }}.Binaries.tar.gz
         asset_content_type: application/gzip
 
   pub_build_macos:
@@ -127,7 +127,7 @@ jobs:
         cp LICENSE.md build/Release/License.txt
     
     - name: Tar Files
-      run: tar -cvzf ${{ env.Product }}.MacOS.${{ matrix.architecture }}.tar.gz -C build/Release .
+      run: tar -cvzf ${{ env.Product }}.MacOS.${{ matrix.architecture }}.Binaries.tar.gz -C build/Release .
 
     - name: Upload ${{ matrix.target }} Release Asset
       uses: actions/upload-release-asset@v1
@@ -135,6 +135,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.pub_create_github_release.outputs.upload_url }}
-        asset_path: ${{ env.Product }}.MacOS.${{ matrix.architecture }}.tar.gz
-        asset_name: ${{ env.Product }}.MacOS.${{ matrix.architecture }}.tar.gz
+        asset_path: ${{ env.Product }}.MacOS.${{ matrix.architecture }}.Binaries.tar.gz
+        asset_name: ${{ env.Product }}.MacOS.${{ matrix.architecture }}.Binaries.tar.gz
         asset_content_type: application/gzip

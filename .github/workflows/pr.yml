@@ -30,7 +30,7 @@ jobs:
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.Product }}.Windows.${{ matrix.architecture }}.${{ matrix.configuration }}
+        name: ${{ env.Product }}.Windows.${{ matrix.architecture }}.${{ matrix.configuration }}.Binaries
         path: build/${{ matrix.configuration }}/*
 
   pr_build_linux:
@@ -52,13 +52,13 @@ jobs:
         cmake --build . --config ${{ matrix.configuration }}
 
     - name: Tar Files
-      run: tar -cvzf ${{ env.Product }}.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}.tar.gz -C build/${{ matrix.configuration }} .
+      run: tar -cvzf ${{ env.Product }}.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}.Binaries.tar.gz -C build/${{ matrix.configuration }} .
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.Product }}.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}
-        path: ${{ env.Product }}.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}.tar.gz
+        name: ${{ env.Product }}.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}.Binaries
+        path: ${{ env.Product }}.Linux.${{ matrix.architecture }}.${{ matrix.configuration }}.Binaries.tar.gz
 
   pr_build_macos:
     name: PR MacOS Build
@@ -79,10 +79,10 @@ jobs:
         cmake --build . --config ${{ matrix.configuration }}
 
     - name: Tar Files
-      run: tar -cvzf ${{ env.Product }}.MacOS.${{ matrix.architecture }}.${{ matrix.configuration }}.tar.gz -C build/${{ matrix.configuration }} .
+      run: tar -cvzf ${{ env.Product }}.MacOS.${{ matrix.architecture }}.${{ matrix.configuration }}.Binaries.tar.gz -C build/${{ matrix.configuration }} .
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.Product }}.MacOS.${{ matrix.architecture }}.${{ matrix.configuration }}
-        path: ${{ env.Product }}.MacOS.${{ matrix.architecture }}.${{ matrix.configuration }}.tar.gz
+        name: ${{ env.Product }}.MacOS.${{ matrix.architecture }}.${{ matrix.configuration }}.Binaries
+        path: ${{ env.Product }}.MacOS.${{ matrix.architecture }}.${{ matrix.configuration }}.Binaries.tar.gz
