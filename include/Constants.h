@@ -8,7 +8,13 @@
 
 namespace MzingaCpp
 {
-constexpr const char *IdString = "id MzingaCpp v0.9.7";
+
+#ifndef VERSION_STR
+#define VERSION_STR "0.0.0"
+#endif
+
+constexpr const char *IdString = "id MzingaCpp v" VERSION_STR;
+
 constexpr const char *CapabilitiesString = "Mosquito;Ladybug;Pillbug";
 
 constexpr const char *OkString = "ok";

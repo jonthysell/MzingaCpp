@@ -4,6 +4,8 @@ project(mzingacpp VERSION 0.9.7)
 
 add_executable(mzingacpp)
 
+target_compile_definitions(mzingacpp PRIVATE VERSION_STR="${PROJECT_VERSION}")
+
 target_include_directories(mzingacpp PRIVATE include)
 
 target_sources(mzingacpp PRIVATE
