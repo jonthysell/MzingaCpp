@@ -32,11 +32,11 @@ Set-Location -Path $RepoRoot
 Write-Host "Building release commit for publish..."
 try
 {
-    $CurrentVersion = Select-String $CMakeListsFile -Pattern "project\(.* VERSION (.*)\)" | % { $_.Matches } | % { $_.Groups[1] }
+    [string]$CurrentVersion = ([string](Select-String $CMakeListsFile -Pattern "project\(.* VERSION (.*)\)" | % { $_.Matches } | % { $_.Groups[1] })).Trim()
 
     Write-Host "Current version: $CurrentVersion"
 
-    $NewVersion = Bump-Version $CurrentVersion $BumpPart
+    [string]$NewVersion = Bump-Version $CurrentVersion $BumpPart
 
     Write-Host "New version: $NewVersion"
 
@@ -46,13 +46,13 @@ try
     Write-Host "Updating $ChangelogFile with new version..."
     (Get-Content $ChangelogFile).Replace("## next ##", "## v$NewVersion ##") | Set-Content $ChangelogFile
 
-    Write-Host "Creating release commit..."
-    &git commit -a -m "Version v$NewVersion release"
-
-    Write-Host "Tagging release commit..."
-    &git tag v$NewVersion
-
     if (!$Test) {
+        Write-Host "Creating release commit..."
+        &git commit -a -m "Version v$NewVersion release"
+
+        Write-Host "Tagging release commit..."
+        &git tag v$NewVersion
+    
         Write-Host "Pushing release commit..."
         &git push
 
