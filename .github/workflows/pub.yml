@@ -59,6 +59,7 @@ jobs:
       run: |
         Copy-Item -Path README.md -Destination build\Release\ReadMe.txt -Force
         Copy-Item -Path LICENSE.md -Destination build\Release\License.txt -Force
+        Copy-Item -Path CHANGELOG.md -Destination build\Release\Changelog.txt -Force
 
     - name: Zip Files
       run: .\scripts\ZipRelease.ps1 -TargetOutputPackageName ${{ env.Product }}.Windows.${{ matrix.architecture }}.Binaries.zip -TargetOutputDirectory .\build\Release\*
@@ -95,6 +96,7 @@ jobs:
       run: |
         cp README.md build/Release/ReadMe.txt
         cp LICENSE.md build/Release/License.txt
+        cp CHANGELOG.md build/Release/Changelog.txt
     
     - name: Tar Files
       run: tar -cvzf ${{ env.Product }}.Linux.${{ matrix.architecture }}.Binaries.tar.gz -C build/Release .
@@ -131,6 +133,7 @@ jobs:
       run: |
         cp README.md build/Release/ReadMe.txt
         cp LICENSE.md build/Release/License.txt
+        cp CHANGELOG.md build/Release/Changelog.txt
     
     - name: Tar Files
       run: tar -cvzf ${{ env.Product }}.MacOS.${{ matrix.architecture }}.Binaries.tar.gz -C build/Release .
