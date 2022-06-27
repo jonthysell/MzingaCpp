@@ -62,7 +62,7 @@ jobs:
         Copy-Item -Path CHANGELOG.md -Destination build\Release\Changelog.txt -Force
 
     - name: Zip Files
-      run: .\scripts\ZipRelease.ps1 -TargetOutputPackageName ${{ env.Product }}.${{ github.ref }}.Windows.${{ matrix.architecture }}.Binaries.zip -TargetOutputDirectory .\build\Release\*
+      run: .\scripts\ZipRelease.ps1 -TargetOutputPackageName ${{ env.Product }}.Windows.${{ matrix.architecture }}.Binaries.zip -TargetOutputDirectory .\build\Release\*
 
     - name: Upload ${{ matrix.target }} Release Asset
       uses: actions/upload-release-asset@v1
@@ -70,8 +70,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.pub_create_github_release.outputs.upload_url }}
-        asset_path: ${{ env.Product }}.${{ github.ref }}.Windows.${{ matrix.architecture }}.Binaries.zip
-        asset_name: ${{ env.Product }}.${{ github.ref }}.Windows.${{ matrix.architecture }}.Binaries.zip
+        asset_path: ${{ env.Product }}.Windows.${{ matrix.architecture }}.Binaries.zip
+        asset_name: ${{ env.Product }}.Windows.${{ matrix.architecture }}.Binaries.zip
         asset_content_type: application/zip
 
   pub_build_linux:
@@ -99,7 +99,7 @@ jobs:
         cp CHANGELOG.md build/Release/Changelog.txt
     
     - name: Tar Files
-      run: tar -cvzf ${{ env.Product }}.${{ github.ref }}.Linux.${{ matrix.architecture }}.Binaries.tar.gz -C build/Release .
+      run: tar -cvzf ${{ env.Product }}.Linux.${{ matrix.architecture }}.Binaries.tar.gz -C build/Release .
 
     - name: Upload ${{ matrix.target }} Release Asset
       uses: actions/upload-release-asset@v1
@@ -107,8 +107,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.pub_create_github_release.outputs.upload_url }}
-        asset_path: ${{ env.Product }}.${{ github.ref }}.Linux.${{ matrix.architecture }}.Binaries.tar.gz
-        asset_name: ${{ env.Product }}.${{ github.ref }}.Linux.${{ matrix.architecture }}.Binaries.tar.gz
+        asset_path: ${{ env.Product }}.Linux.${{ matrix.architecture }}.Binaries.tar.gz
+        asset_name: ${{ env.Product }}.Linux.${{ matrix.architecture }}.Binaries.tar.gz
         asset_content_type: application/gzip
 
   pub_build_macos:
@@ -136,7 +136,7 @@ jobs:
         cp CHANGELOG.md build/Release/Changelog.txt
     
     - name: Tar Files
-      run: tar -cvzf ${{ env.Product }}.${{ github.ref }}.MacOS.${{ matrix.architecture }}.Binaries.tar.gz -C build/Release .
+      run: tar -cvzf ${{ env.Product }}.MacOS.${{ matrix.architecture }}.Binaries.tar.gz -C build/Release .
 
     - name: Upload ${{ matrix.target }} Release Asset
       uses: actions/upload-release-asset@v1
@@ -144,6 +144,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.pub_create_github_release.outputs.upload_url }}
-        asset_path: ${{ env.Product }}.${{ github.ref }}.MacOS.${{ matrix.architecture }}.Binaries.tar.gz
-        asset_name: ${{ env.Product }}.${{ github.ref }}.MacOS.${{ matrix.architecture }}.Binaries.tar.gz
+        asset_path: ${{ env.Product }}.MacOS.${{ matrix.architecture }}.Binaries.tar.gz
+        asset_name: ${{ env.Product }}.MacOS.${{ matrix.architecture }}.Binaries.tar.gz
         asset_content_type: application/gzip
