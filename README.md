@@ -10,25 +10,25 @@ It implements the base game and the three official expansions.
 
 ### Windows ###
 
-The Windows release provides self-contained x86/x64 binaries which run on Windows 7 SP1+, 8.1, 10, and 11.
+The Windows release provides self-contained x86/x64 binaries which run on Windows.
 
-1. Download the latest Windows zip file (MzingaCpp.Windows.x86.Binaries.zip *or* MzingaCpp.Windows.x64.Binaries.zip) from https://github.com/jonthysell/MzingaCpp/releases/latest
+1. Download the latest Windows zip file from https://github.com/jonthysell/MzingaCpp/releases/latest
 2. Extract the zip file
 
-**Note:** If you're unsure which version to download, try MzingaCpp.Windows.x64.zip first. Most modern PCs are 64-bit.
+**Note:** If you're unsure which version to download, try x64. Most modern PCs are 64-bit.
 
 ### MacOS ###
 
-The MacOS release provides self-contained x64 binaries which run on OSX >= 10.13.
+The MacOS release provides self-contained x64 binaries which run on OSX.
 
-1. Download the latest MacOS tar.gz file (MzingaCpp.MacOS.x64.Binaries.tar.gz) from https://github.com/jonthysell/MzingaCpp/releases/latest
+1. Download the latest MacOS tar.gz file from https://github.com/jonthysell/MzingaCpp/releases/latest
 2. Extract the tar.gz file
 
 ### Linux ###
 
 The Linux release provides self-contained x64 binaries which run on many Linux distributions.
 
-1. Download the latest Linux tar.gz file (MzingaCpp.Linux.x64.Binaries.tar.gz) from https://github.com/jonthysell/MzingaCpp/releases/latest
+1. Download the latest Linux tar.gz file from https://github.com/jonthysell/MzingaCpp/releases/latest
 2. Extract the tar.gz file
 
 ## Build ##
